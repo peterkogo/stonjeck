@@ -1,9 +1,9 @@
 import groq from 'groq';
 import { createServerClient } from './client';
-import { SANITY_API_READ_TOKEN } from '$env/static/private';
+// import { SANITY_API_READ_TOKEN } from '$env/static/private';
 import type { Series } from './types';
 
-const serverClient = createServerClient(SANITY_API_READ_TOKEN);
+const serverClient = createServerClient();
 
 const allSeriesQuery = groq`
   *[_type == "series"] | order(order desc) {
