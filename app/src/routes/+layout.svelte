@@ -2,6 +2,8 @@
 	import '../app.css';
 	import type { Snippet } from 'svelte';
 	import { type PageData } from './$types';
+	import { page } from '$app/stores';
+	import { onNavigate } from '$app/navigation';
 
 	let { data, children }: { data: PageData; children: Snippet } = $props();
 
@@ -10,25 +12,47 @@
 		const englishTitle = titleArray.find((t) => t._key === 'de');
 		return englishTitle?.value || titleArray[0]?.value || 'Untitled';
 	}
+
+	onNavigate((navigation) => {
+		if (!document.startViewTransition) return;
+
+		return new Promise((resolve) => {
+			document.startViewTransition(async () => {
+				resolve();
+				await navigation.complete;
+			});
+		});
+	});
 </script>
 
 <div class="flex min-h-screen">
 	<!-- Transparent Sidebar -->
-	<aside class="w-64 p-8">
+	<aside class="w-[241px] p-8">
 		<a href="/" class="mb-8 block">
 			<h1 class="mb-8 text-2xl font-bold text-gray-900">Karim Stonjeck</h1>
 		</a>
 
 		<!-- Series List -->
 		{#if data.series && data.series.length > 0}
-			<div class="space-y-3">
+			<div class="flex flex-col space-y-3">
 				{#each data.series as series}
-					<a
-						href={`/${series.slug.current}`}
-						class="block cursor-pointer text-gray-700 hover:text-gray-900"
-					>
-						{getTitle(series.title)}
-					</a>
+					<div class="flex items-center justify-end">
+						{#if $page.url.pathname === `/${series.slug.current}`}
+							<div
+								class="mr-2 inline size-1 rounded-full bg-gray-900"
+								style:view-transition-name="dot"
+							></div>
+						{/if}
+						<a
+							href={`/${series.slug.current}`}
+							class="block cursor-pointer text-gray-500 hover:text-gray-900 {$page.url.pathname ===
+							`/${series.slug.current}`
+								? 'text-gray-900'
+								: ''}"
+						>
+							{getTitle(series.title)}
+						</a>
+					</div>
 				{/each}
 			</div>
 		{/if}

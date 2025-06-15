@@ -1,8 +1,8 @@
 import { error } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
+import type { LayoutServerLoad } from './$types';
 import { getAllSeries } from '$lib/sanity/server';
 
-export const load: PageServerLoad = async () => {
+export const load: LayoutServerLoad = async ({ url }) => {
 	const series = await getAllSeries();
 
 	if (!series) {
@@ -10,7 +10,8 @@ export const load: PageServerLoad = async () => {
 	}
 
 	return {
-		series
+		series,
+		currentPath: url.pathname
 	};
 };
 
