@@ -32,12 +32,6 @@ export default {
       validation: (Rule: any) => Rule.required(),
     },
     {
-      name: 'description',
-      title: 'Description',
-      type: 'internationalizedArrayText',
-      rows: 4,
-    },
-    {
       name: 'startDate',
       title: 'Start Date',
       type: 'datetime',
@@ -102,33 +96,25 @@ export default {
         },
       ],
     },
+    {
+      name: 'description',
+      title: 'Description',
+      type: 'internationalizedArrayText',
+      rows: 4,
+    },
   ],
   preview: {
     select: {
       title: 'title',
-      type: 'type',
-      startDate: 'startDate',
       venueName: 'venue.name',
       media: 'photos.0',
     },
     prepare(selection: any) {
-      const {title, type, startDate, venueName, media} = selection
-      // Get the German version if available, otherwise fall back to English
-      const germanTitle = title?.find((item: any) => item._key === 'de')?.value
-      const englishTitle = title?.find((item: any) => item._key === 'en')?.value
-      const germanVenueName = venueName?.find((item: any) => item._key === 'de')?.value
-      const englishVenueName = venueName?.find((item: any) => item._key === 'en')?.value
-
-      const displayTitle = germanTitle || englishTitle || 'Untitled'
-      const displayVenue = germanVenueName || englishVenueName || ''
-      const displayType = type === 'solo' ? 'Solo' : 'Group'
-      const displayDate = startDate ? new Date(startDate).getFullYear() : ''
+      const {title, venueName} = selection
 
       return {
-        title: displayTitle,
-        subtitle:
-          `${displayType} Exhibition ${displayDate ? `(${displayDate})` : ''} ${displayVenue ? `at ${displayVenue}` : ''}`.trim(),
-        media: media,
+        title,
+        subtitle: venueName,
       }
     },
   },
