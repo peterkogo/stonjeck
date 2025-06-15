@@ -27,11 +27,7 @@ export default {
       title: 'Slug',
       type: 'slug',
       options: {
-        source: (doc: {title?: Array<{_key: string; value: string}>}) => {
-          const germanTitle = doc.title?.find((item: any) => item._key === 'de')?.value
-          const englishTitle = doc.title?.find((item: any) => item._key === 'en')?.value
-          return germanTitle || englishTitle || 'untitled'
-        },
+        source: (doc: {title?: string}) => doc.title,
       },
       validation: (Rule: any) => Rule.required(),
     },
