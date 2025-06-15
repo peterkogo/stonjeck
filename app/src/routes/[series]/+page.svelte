@@ -7,6 +7,45 @@
 
 	// You can integrate with paraglide-js for language switching
 	const currentLanguage: SupportedLanguage = 'de'; // Default to English for now
+
+	let scrollContainer: HTMLDivElement;
+	let currentIndex = $state(0);
+
+	function scrollToIndex(index: number) {
+		if (!scrollContainer || !data.series.works) return;
+
+		const totalWorks = data.series.works.filter((work) => work && work.image).length;
+		const clampedIndex = Math.max(0, Math.min(index, totalWorks - 1));
+
+		const scrollTop = clampedIndex * window.innerHeight;
+		scrollContainer.scrollTo({
+			top: scrollTop,
+			behavior: 'smooth'
+		});
+
+		currentIndex = clampedIndex;
+	}
+
+	function handleKeydown(event: KeyboardEvent) {
+		switch (event.key) {
+			case 'ArrowDown':
+				event.preventDefault();
+				scrollToIndex(currentIndex + 1);
+				break;
+			case 'ArrowUp':
+				event.preventDefault();
+				scrollToIndex(currentIndex - 1);
+				break;
+		}
+	}
+
+	function updateCurrentIndex() {
+		if (!scrollContainer) return;
+
+		const scrollTop = scrollContainer.scrollTop;
+		const newIndex = Math.round(scrollTop / window.innerHeight);
+		currentIndex = newIndex;
+	}
 </script>
 
 <svelte:head>
@@ -14,7 +53,13 @@
 	<meta name="description" content="Collection of artwork series" />
 </svelte:head>
 
-<div class="h-screen overflow-y-scroll scroll-smooth">
+<svelte:window on:keydown={handleKeydown} />
+
+<div
+	bind:this={scrollContainer}
+	onscroll={updateCurrentIndex}
+	class="h-screen snap-y snap-mandatory overflow-y-scroll scroll-smooth"
+>
 	{#if data.series.works}
 		{#each data.series.works as work}
 			{#if work && work.image}

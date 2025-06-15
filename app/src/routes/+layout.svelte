@@ -41,7 +41,7 @@
 		<a
 			href={link}
 			class={[
-				'block cursor-pointer text-sm font-light tracking-wide text-gray-400 transition-all duration-200 hover:font-normal hover:tracking-normal hover:text-gray-900',
+				'block cursor-pointer text-sm font-light tracking-wide text-gray-400  hover:text-gray-900',
 				{ 'font-medium tracking-normal text-gray-900': path === link }
 			]}
 		>
