@@ -63,3 +63,10 @@ export function getLocalizedValue(
 	const fallbackValue = content.find((item) => item._key === fallback)?.value;
 	return fallbackValue || '';
 }
+
+export interface Information {
+	_id: string;
+	_type: 'information';
+	biography: InternationalizedText[];
+	impressum: any[]; // Array of blocks
+}

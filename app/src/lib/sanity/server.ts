@@ -1,7 +1,7 @@
 import groq from 'groq';
 import { createServerClient } from './client';
 // import { SANITY_API_READ_TOKEN } from '$env/static/private';
-import type { Series } from './types';
+import type { Series, Information } from './types';
 
 const serverClient = createServerClient();
 
@@ -38,4 +38,17 @@ const seriesBySlugQuery = groq`
 
 export async function getSeriesBySlug(slug: string): Promise<Series> {
 	return await serverClient.fetch(seriesBySlugQuery, { slug });
+}
+
+const informationQuery = groq`
+*[_type == "information"][0] {
+  _id,
+  _type,
+  biography,
+  impressum
+}
+`;
+
+export async function getInformation(): Promise<Information> {
+	return await serverClient.fetch(informationQuery);
 }
