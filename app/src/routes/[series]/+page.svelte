@@ -14,7 +14,7 @@
 	<meta name="description" content="Collection of artwork series" />
 </svelte:head>
 
-<div class="h-screen snap-y snap-mandatory overflow-y-scroll scroll-smooth">
+<div class="h-screen overflow-y-scroll scroll-smooth">
 	{#if data.series.works}
 		{#each data.series.works as work}
 			{#if work && work.image}
