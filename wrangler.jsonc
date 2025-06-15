@@ -1,8 +1,8 @@
 {
   "name": "stonjeck",
   "main": ".svelte-kit/cloudflare/_worker.js",
-  "compatibility_date": "2025-06-15",
   "compatibility_flags": ["nodejs_compat"],
+  "compatibility_date": "2025-06-15",
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,
