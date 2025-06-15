@@ -19,7 +19,6 @@
 		{#each data.series.works as work}
 			{#if work && work.image}
 				<div class="relative flex h-screen snap-start py-16">
-					<!-- Image section -->
 					<div class="flex flex-1 items-center">
 						<div class="relative flex max-h-full">
 							<SanityImage

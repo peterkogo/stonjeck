@@ -9,7 +9,7 @@ export default {
     {
       name: 'biography',
       title: 'Biography',
-      type: 'internationalizedArrayString',
+      type: 'internationalizedArrayText',
       validation: (Rule: any) => Rule.required(),
     },
     {
