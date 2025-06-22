@@ -1,54 +1,82 @@
-import groq from 'groq';
+import { defineQuery } from 'groq';
 import { createServerClient } from './client';
-// import { SANITY_API_READ_TOKEN } from '$env/static/private';
-import type { Series, Information } from './types';
 
 const serverClient = createServerClient();
 
-const allSeriesQuery = groq`
+const allSeriesQuery = defineQuery(`
   *[_type == "series"] | order(order desc) {
     slug,
-    title,
+    "title": coalesce(
+      title[_key == $language][0].value,
+      title[_key == "de"][0].value,
+      "Missing translation"
+    ),
     order,
   }
-`;
-export async function getAllSeries(): Promise<Series[]> {
-	return await serverClient.fetch(allSeriesQuery);
+`);
+
+export async function getAllSeries(language: string) {
+	return await serverClient.fetch(allSeriesQuery, { language });
 }
 
-const seriesBySlugQuery = groq`
+const seriesBySlugQuery = defineQuery(`
 *[_type == "series" && slug.current == $slug][0] {
-  title,
+  "title": coalesce(
+    title[_key == $language][0].value,
+    title[_key == "de"][0].value,
+    "Missing translation"
+  ),
   year,
   slug,
   description,
   works[]-> {
     slug,
-    title,
-    image,
+    "title": coalesce(
+      title[_key == $language][0].value,
+      title[_key == "de"][0].value,
+      "Missing translation"
+    ),
+    image {
+      ...,
+      asset->{
+        ...,
+        metadata{
+          blurHash,
+          dimensions
+        }
+      }
+    },
     date,
     size,
     description,
     medium-> {
-      name
+      "name": coalesce(
+        name[_key == $language][0].value,
+        name[_key == "de"][0].value,
+        "Missing translation"
+      ),
     }
   }
 }
-`;
+`);
 
-export async function getSeriesBySlug(slug: string): Promise<Series> {
-	return await serverClient.fetch(seriesBySlugQuery, { slug });
+export async function getSeriesBySlug(slug: string, language: string) {
+	return await serverClient.fetch(seriesBySlugQuery, { slug, language });
 }
 
-const informationQuery = groq`
+const informationQuery = defineQuery(`
 *[_type == "information"][0] {
   _id,
   _type,
-  biography,
+  "biography": coalesce(
+    biography[_key == $language][0].value,
+    biography[_key == "de"][0].value,
+    "Missing translation"
+  ),
   impressum
 }
-`;
+`);
 
-export async function getInformation(): Promise<Information> {
-	return await serverClient.fetch(informationQuery);
+export async function getInformation(language: string) {
+	return await serverClient.fetch(informationQuery, { language });
 }

@@ -1,4 +1,6 @@
 import { createClient } from '@sanity/client';
+import imageUrlBuilder from '@sanity/image-url';
+import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 import {
 	PUBLIC_SANITY_PROJECT_ID,
 	PUBLIC_SANITY_DATASET,
@@ -24,6 +26,12 @@ export const sanityClient = createClient({
 	useCdn: true,
 	stega: false
 });
+
+export function urlFor(source: SanityImageSource) {
+	const builder = imageUrlBuilder(sanityClient);
+
+	return builder.image(source);
+}
 
 // Server-side client with read token (will be configured in server code)
 export function createServerClient(token?: string) {

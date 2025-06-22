@@ -1,12 +1,8 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { getLocalizedValue, type SupportedLanguage } from '$lib/sanity/types';
 	import SanityImage from '$lib/components/SanityImage.svelte';
 
 	let { data }: { data: PageData } = $props();
-
-	// You can integrate with paraglide-js for language switching
-	const currentLanguage: SupportedLanguage = 'de'; // Default to English for now
 
 	let scrollContainer: HTMLDivElement;
 	let currentIndex = $state(0);
@@ -49,7 +45,7 @@
 </script>
 
 <svelte:head>
-	<title>{getLocalizedValue(data.series.title, currentLanguage) || 'Series'}</title>
+	<title>{data.series.title}</title>
 	<meta name="description" content="Collection of artwork series" />
 </svelte:head>
 
@@ -61,14 +57,14 @@
 	class="h-screen snap-y snap-mandatory overflow-y-scroll scroll-smooth"
 >
 	{#if data.series.works}
-		{#each data.series.works as work}
+		{#each data.series.works as work (work.slug?.current)}
 			{#if work && work.image}
 				<div class="relative flex h-screen snap-start py-16">
 					<div class="flex flex-1 items-center">
 						<div class="relative flex max-h-full">
 							<SanityImage
 								image={work.image}
-								alt={getLocalizedValue(work.title, currentLanguage) || 'Artwork'}
+								alt={work.title}
 								class="max-h-full min-w-0 object-contain"
 							/>
 							<div
@@ -77,13 +73,13 @@
 							>
 								<div class="space-y-1 text-right">
 									<h2 class="text-l font-semibold text-gray-800">
-										{getLocalizedValue(work.title, currentLanguage)}
+										{work.title}
 									</h2>
 									<p class="text-[0.8rem] italic text-gray-500">
-										{getLocalizedValue(work.medium.name, currentLanguage)}
+										{work.medium?.name}
 									</p>
 									<p class="text-[0.7rem] text-gray-400">
-										{work.date.split('-')[0]}, {work.size} cm
+										{work.date?.split('-')[0]}, {work.size} cm
 									</p>
 								</div>
 							</div>
