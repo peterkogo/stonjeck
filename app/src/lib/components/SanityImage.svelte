@@ -14,17 +14,12 @@
 		class?: string;
 	} = $props();
 
-	// console.log(image);
 	let imageLoaded = $state(false);
-	// svelte-ignore non_reactive_update
-	let blurHashCanvas: HTMLCanvasElement;
+	let blurHashCanvas = $state<HTMLCanvasElement | undefined>(undefined);
 	let imageRef: HTMLImageElement;
 
 	let dimensions = $derived(image?.asset?.metadata?.dimensions);
 	let aspectRatio = $derived(dimensions?.aspectRatio);
-
-	let begin = performance.now();
-	let canvasRendered = performance.now();
 
 	function renderBlurHash() {
 		const blurHash = image?.asset?.metadata?.blurHash;
@@ -34,7 +29,6 @@
 		const ctx = canvas.getContext('2d');
 		if (!ctx) return;
 
-		// Decode the blurhash with a reasonable size
 		const blurWidth = 32;
 		const blurHeight = 32;
 
@@ -43,22 +37,17 @@
 			const imageData = ctx.createImageData(blurWidth, blurHeight);
 			imageData.data.set(pixels);
 			ctx.putImageData(imageData, 0, 0);
-			canvasRendered = performance.now();
-			// console.log('blurhash rendered');
 		} catch (error) {
 			console.warn('Failed to decode blurhash:', error);
 		}
 	}
 
 	function onload() {
-		console.log('image loaded', performance.now() - begin);
-		console.log('canvas rendered', performance.now() - canvasRendered);
 		imageLoaded = true;
 	}
 
-	// Re-render blurhash when it changes using $effect
 	$effect(() => {
-		if (!imageLoaded && blurHashCanvas) {
+		if (blurHashCanvas) {
 			renderBlurHash();
 		}
 	});
@@ -67,11 +56,11 @@
 <div class="relative">
 	<img
 		{alt}
-		class={className}
+		class={[className, '']}
 		loading="lazy"
 		bind:this={imageRef}
-		width={dimensions.width}
-		height={dimensions.height}
+		width="{dimensions.width}px"
+		height="{dimensions.height}px"
 		src={urlFor(image).width(800).url()}
 		srcSet={[
 			`${urlFor(image).auto('format').width(400).url()} 400w`,

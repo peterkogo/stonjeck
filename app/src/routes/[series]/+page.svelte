@@ -68,7 +68,7 @@
 								class="max-h-full min-w-0 object-contain"
 							/>
 							<div
-								class="sticky top-16 flex max-w-64 flex-shrink-0 items-start justify-end pl-8 pr-16"
+								class="sticky top-16 flex min-w-64 flex-shrink-0 items-start justify-end pl-8 pr-16"
 								style:height="fit-content"
 							>
 								<div class="space-y-1 text-right">
@@ -79,7 +79,7 @@
 										{work.medium?.name}
 									</p>
 									<p class="text-[0.7rem] text-gray-400">
-										{work.date?.split('-')[0]}, {work.size} cm
+										{work.date?.split('-')[0]} • {work.size} cm
 									</p>
 								</div>
 							</div>
