@@ -60,9 +60,9 @@
 {/snippet}
 
 <div class="flex min-h-screen">
-	<aside class="flex w-[241px] flex-col p-8 pb-16">
+	<aside class="flex flex-col p-8 pr-0">
 		<a href="/" class="relative mb-4 block">
-			<h1 class="mb-8 text-2xl font-semibold text-gray-900">Karim Stonjeck</h1>
+			<h1 class="mb-8 whitespace-nowrap text-2xl font-semibold text-gray-900">Karim Stonjeck</h1>
 			<div
 				class="absolute left-0 top-0 size-[6px] translate-x-[38px] translate-y-[5px] rounded-full bg-white"
 			></div>

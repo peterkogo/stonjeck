@@ -59,16 +59,27 @@
 	{#if data.series.works}
 		{#each data.series.works as work (work.slug?.current)}
 			{#if work && work.image}
-				<div class="relative flex h-screen snap-start py-16">
+				<div class="relative flex h-screen snap-start p-16">
 					<div class="flex flex-1 items-center">
-						<div class="relative flex max-h-full">
+						<div class="flex flex-col p-8 lg:max-h-full lg:flex-row lg:p-0">
 							<SanityImage
 								image={work.image}
 								alt={work.title}
-								class="max-h-full min-w-0 object-contain"
+								class="max-h-[calc(100vh-var(--spacing)*16)] min-h-0 min-w-0 object-contain lg:max-h-full"
 							/>
+							<div class="text-l mt-2 w-full text-center align-middle lg:hidden">
+								<span class="text-l font-semibold text-gray-800">
+									{work.title} •
+								</span>
+								<span class="text-[0.8rem] text-gray-500">
+									{work.medium?.name} •
+								</span>
+								<span class="text-[0.8rem] text-gray-400">
+									{work.date?.split('-')[0]} • {work.size} cm
+								</span>
+							</div>
 							<div
-								class="sticky top-16 flex min-w-64 flex-shrink-0 items-start justify-end pl-8 pr-16"
+								class="sticky top-16 hidden min-w-48 flex-shrink-0 items-start justify-end lg:flex"
 								style:height="fit-content"
 							>
 								<div class="space-y-1 text-right">
