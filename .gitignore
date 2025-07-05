@@ -38,6 +38,3 @@ yarn-error.log*
 *.pem
 
 data.ts
-
-messages/de.json
-messages/en.json
