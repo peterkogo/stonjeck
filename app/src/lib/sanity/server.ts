@@ -28,7 +28,6 @@ const seriesBySlugQuery = defineQuery(`
   ),
   year,
   slug,
-  description,
   works[]-> {
     slug,
     "title": coalesce(
@@ -48,7 +47,6 @@ const seriesBySlugQuery = defineQuery(`
     },
     date,
     size,
-    description,
     medium-> {
       "name": coalesce(
         name[_key == $language][0].value,

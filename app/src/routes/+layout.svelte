@@ -7,7 +7,6 @@
 	import { onNavigate } from '$app/navigation';
 	import { type ClassValue } from 'svelte/elements';
 	import { biography } from '$lib/paraglide/messages';
-	import GlobeIcon from './GlobeIcon.svelte';
 
 	let { data, children }: { data: PageData; children: Snippet } = $props();
 
@@ -77,7 +76,7 @@
 				{@render item(series.title, `/${series.slug?.current}`, page.url.pathname)}
 			{/each}
 			<div
-				class="mt-auto flex w-full items-center justify-end font-light tracking-wide hover:text-gray-900"
+				class="absolute bottom-5 left-10 mt-auto flex items-center justify-end font-light tracking-wide hover:text-gray-900"
 			>
 				<div
 					class="right-0 cursor-pointer"
@@ -91,7 +90,8 @@
 					tabindex="0"
 					aria-label={getLocale() === 'en' ? 'Switch to German' : 'Switch to English'}
 				>
-					{getLocale() === 'en' ? 'Deutsch' : 'English'}
+					<span class={{ 'font-bold': getLocale() === 'de' }}>de</span> |
+					<span class={{ 'font-bold': getLocale() === 'en' }}>en</span>
 				</div>
 			</div>
 		</div>

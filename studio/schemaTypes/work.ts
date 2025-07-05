@@ -51,12 +51,6 @@ export default {
       description: 'e.g., "100x170 cm" or "24x36 inches"',
       validation: (Rule: any) => Rule.required(),
     },
-    {
-      name: 'description',
-      title: 'Description',
-      type: 'internationalizedArrayText',
-      rows: 3,
-    },
   ],
   preview: {
     select: {

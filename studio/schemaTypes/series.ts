@@ -23,12 +23,6 @@ export default {
       validation: (Rule: any) => Rule.required(),
     },
     {
-      name: 'description',
-      title: 'Description',
-      type: 'internationalizedArrayText',
-      rows: 4,
-    },
-    {
       name: 'order',
       title: 'Order',
       type: 'number',
