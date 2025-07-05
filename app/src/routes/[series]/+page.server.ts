@@ -1,9 +1,9 @@
 import type { PageServerLoad } from './$types';
-import { getSeriesBySlug } from '$lib/sanity/server';
 import { error } from '@sveltejs/kit';
+import { data } from '../../../data';
 
-export const load: PageServerLoad = async ({ params, locals }) => {
-	const series = await getSeriesBySlug(params.series, locals.language);
+export const load: PageServerLoad = async ({ params }) => {
+	const series = data.series?.find((s) => s.slug?.current === params.series);
 
 	if (!series) {
 		throw error(404, 'Series not found');

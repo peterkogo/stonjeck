@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import SanityImage from '$lib/components/SanityImage.svelte';
+	import { m } from '$lib/paraglide/messages';
 
 	let { data }: { data: PageData } = $props();
 
@@ -45,7 +46,7 @@
 </script>
 
 <svelte:head>
-	<title>{data.series.title}</title>
+	<title>{m[data.series._id]()}</title>
 	<meta name="description" content="Collection of artwork series" />
 </svelte:head>
 
@@ -64,15 +65,15 @@
 						<div class="flex flex-col p-8 lg:max-h-full lg:flex-row lg:p-0">
 							<SanityImage
 								image={work.image}
-								alt={work.title}
+								alt={m[work._id]()}
 								class="max-h-[calc(100vh-var(--spacing)*16)] min-h-0 min-w-0 object-contain lg:max-h-full"
 							/>
 							<div class="text-l mt-2 w-full text-center align-middle lg:hidden">
 								<span class="text-l font-semibold text-gray-800">
-									{work.title} •
+									{m[work._id]()} •
 								</span>
 								<span class="text-[0.8rem] text-gray-500">
-									{work.medium?.name} •
+									{m[work.medium?._id]()} •
 								</span>
 								<span class="text-[0.8rem] text-gray-400">
 									{work.date?.split('-')[0]} • {work.size} cm
@@ -84,10 +85,10 @@
 							>
 								<div class="space-y-1 text-right">
 									<h2 class="text-l font-semibold text-gray-800">
-										{work.title}
+										{m[work._id]()}
 									</h2>
 									<p class="text-[0.8rem] italic text-gray-500">
-										{work.medium?.name}
+										{m[work.medium?._id]()}
 									</p>
 									<p class="text-[0.7rem] text-gray-400">
 										{work.date?.split('-')[0]} • {work.size} cm

@@ -1,10 +1,11 @@
 import type { PageServerLoad } from './$types';
-import { getInformation } from '$lib/sanity/server';
+import { data } from '../../../data';
 
-export const load: PageServerLoad = async ({ locals }) => {
-	const information = await getInformation(locals.language);
+export const load: PageServerLoad = async () => {
+	const information = data.information;
 
 	return {
+		information,
 		biography: information?.biography
 	};
 };

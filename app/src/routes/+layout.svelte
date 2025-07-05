@@ -6,7 +6,7 @@
 	import { page } from '$app/state';
 	import { onNavigate } from '$app/navigation';
 	import { type ClassValue } from 'svelte/elements';
-	import { biography } from '$lib/paraglide/messages';
+	import { m } from '$lib/paraglide/messages';
 
 	let { data, children }: { data: PageData; children: Snippet } = $props();
 
@@ -71,9 +71,9 @@
 		</a>
 
 		<div class="flex flex-col space-y-3 text-sm text-gray-400">
-			{@render item(biography(), '/bio', page.url.pathname)}
+			{@render item(m['ui.biography'](), '/bio', page.url.pathname)}
 			{#each data.series as series}
-				{@render item(series.title, `/${series.slug?.current}`, page.url.pathname)}
+				{@render item(m[series._id](), `/${series.slug?.current}`, page.url.pathname)}
 			{/each}
 			<div
 				class="absolute bottom-5 left-10 mt-auto flex items-center justify-end font-light tracking-wide hover:text-gray-900"
