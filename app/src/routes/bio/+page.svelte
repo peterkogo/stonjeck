@@ -10,7 +10,7 @@
 	}
 </script>
 
-<div class="mt-16 flex w-full items-center justify-center">
+<div class="mt-8 flex w-full items-center justify-center">
 	<div class="relative w-64">
 		<SanityImage
 			image={data.information.titleImage.image}
