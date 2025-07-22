@@ -3,5 +3,6 @@ import series from './series'
 import work from './work'
 import exhibitions from './exhibitions'
 import information from './information'
+import tag from './tag'
 
-export const schemaTypes = [medium, series, work, exhibitions, information]
+export const schemaTypes = [medium, tag, series, work, exhibitions, information]

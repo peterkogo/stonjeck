@@ -32,6 +32,12 @@ export default {
       validation: (Rule: any) => Rule.required(),
     },
     {
+      name: 'tags',
+      title: 'Tags',
+      type: 'array',
+      of: [{type: 'reference', to: [{type: 'tag'}]}],
+    },
+    {
       name: 'date',
       title: 'Date',
       type: 'date',
