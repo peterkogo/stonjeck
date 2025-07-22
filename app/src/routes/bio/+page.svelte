@@ -10,12 +10,12 @@
 	}
 </script>
 
-<div class="mt-8 flex w-full items-center justify-center">
-	<div class="relative w-64">
+<div class="ml-8 mt-8 flex w-full items-center justify-center">
+	<div class="relative w-48">
 		<SanityImage
 			image={data.information.titleImage.image}
 			alt={'Most recent work of the artist'}
-			class="max-h-48 min-h-0 min-w-0 object-contain"
+			class="max-h-72 min-h-0 min-w-0 object-contain"
 		/>
 	</div>
 
