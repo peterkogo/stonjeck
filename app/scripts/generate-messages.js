@@ -83,6 +83,18 @@ const informationQuery = defineQuery(`
   *[_type == "information"][0] {
     _id,
     _type,
+    titleImage-> {
+		image {
+			...,
+			asset->{
+			...,
+			metadata{
+				blurHash,
+				dimensions
+			}
+			}
+		}
+	},
     biography,
     impressum
   }

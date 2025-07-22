@@ -7,6 +7,13 @@ export default {
   },
   fields: [
     {
+      name: 'titleImage',
+      title: 'Title Image',
+      type: 'reference',
+      to: [{type: 'work'}],
+      validation: (Rule: any) => Rule.required(),
+    },
+    {
       name: 'biography',
       title: 'Biography',
       type: 'internationalizedArrayText',
