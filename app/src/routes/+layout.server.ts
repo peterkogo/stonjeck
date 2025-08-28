@@ -2,8 +2,9 @@ import { error } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 import { data } from '../../data';
 
-export const load: LayoutServerLoad = async ({ url }) => {
+export const load: LayoutServerLoad = async () => {
 	const series = data.series;
+	const works = data.works;
 
 	if (!series) {
 		throw error(404, 'Series not found');
@@ -11,7 +12,7 @@ export const load: LayoutServerLoad = async ({ url }) => {
 
 	return {
 		series,
-		currentPath: url.pathname
+		works
 	};
 };
 

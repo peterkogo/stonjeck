@@ -7,22 +7,40 @@
 	let {
 		image,
 		alt,
-		class: className
+		class: className,
+		width = 800,
+		height,
+		fit = 'max'
 	}: {
 		image: SanityImageSource;
 		alt: string;
 		class?: string;
+		width?: number;
+		height?: number;
+		fit?: 'clip' | 'crop' | 'fill' | 'fillmax' | 'max' | 'min' | 'scale';
 	} = $props();
+
+	// Check if we're dealing with a forced aspect ratio (like aspect-square)
+	const isSquareForced = className?.includes('aspect-square');
 
 	let imageLoaded = $state(false);
 	let blurHashCanvas = $state<HTMLCanvasElement | undefined>(undefined);
 	let imageRef: HTMLImageElement;
 
-	let dimensions = $derived(image?.asset?.metadata?.dimensions);
+	let dimensions = $derived((image as any)?.asset?.metadata?.dimensions);
 	let aspectRatio = $derived(dimensions?.aspectRatio);
 
+	// Create URL builder with hotspot support
+	function createImageUrl(w: number, h?: number) {
+		let builder = urlFor(image).width(w).auto('format').fit(fit);
+		if (h) {
+			builder = builder.height(h);
+		}
+		return builder.url();
+	}
+
 	function renderBlurHash() {
-		const blurHash = image?.asset?.metadata?.blurHash;
+		const blurHash = (image as any)?.asset?.metadata?.blurHash;
 		if (imageRef.complete || !blurHash || !blurHashCanvas) return;
 
 		const canvas = blurHashCanvas;
@@ -61,11 +79,11 @@
 		bind:this={imageRef}
 		width="{dimensions.width}px"
 		height="{dimensions.height}px"
-		src={urlFor(image).width(800).url()}
+		src={createImageUrl(width, height)}
 		srcSet={[
-			`${urlFor(image).auto('format').width(400).url()} 400w`,
-			`${urlFor(image).auto('format').width(800).url()} 800w`,
-			`${urlFor(image).auto('format').width(1200).url()} 1200w`
+			`${createImageUrl(400, height ? Math.round((height * 400) / width) : undefined)} 400w`,
+			`${createImageUrl(800, height ? Math.round((height * 800) / width) : undefined)} 800w`,
+			`${createImageUrl(1200, height ? Math.round((height * 1200) / width) : undefined)} 1200w`
 		].join(', ')}
 		sizes="(max-width: 600px) 400px, (max-width: 1200px) 800px, 1200px"
 		{onload}
@@ -77,9 +95,9 @@
 				bind:this={blurHashCanvas}
 				width="32"
 				height="32"
-				style:aspect-ratio={aspectRatio}
-				style:width={aspectRatio > 1 ? '100%' : 'auto'}
-				style:height={aspectRatio > 1 ? 'auto' : '100%'}
+				style:aspect-ratio={isSquareForced ? '1' : aspectRatio}
+				style:width={isSquareForced || aspectRatio > 1 ? '100%' : 'auto'}
+				style:height={isSquareForced || aspectRatio > 1 ? 'auto' : '100%'}
 				class="absolute inset-0 m-auto object-cover"
 			></canvas>
 		</div>

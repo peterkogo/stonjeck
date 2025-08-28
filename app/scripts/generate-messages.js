@@ -42,6 +42,35 @@ function createSanityClient(env) {
 }
 
 // GROQ queries to fetch all data separately
+const worksQuery = defineQuery(`
+  *[_type == "work"] | order(date desc) {
+	_id,
+	slug,
+	title,
+	image {
+		...,
+		asset->{
+			...,
+			metadata{
+			blurHash,
+			dimensions
+			}
+		}
+	},
+	date,
+	size,
+	tags[]-> {
+		_id,
+		name,
+	},
+	medium-> {
+		_id,
+		name,
+	}
+  }
+`);
+
+// GROQ queries to fetch all data separately
 const seriesQuery = defineQuery(`
   *[_type == "series"] | order(order desc) {
     _id,
@@ -74,6 +103,13 @@ const seriesQuery = defineQuery(`
 
 const mediumsQuery = defineQuery(`
   *[_type == "medium"] {
+    _id,
+    name
+  }
+`);
+
+const tagsQuery = defineQuery(`
+  *[_type == "tag"] {
     _id,
     name
   }
@@ -170,13 +206,15 @@ async function generateMessages() {
 
 		// Fetch all data separately
 		console.log('📡 Fetching data from Sanity...');
-		const [series, mediums, information] = await Promise.all([
+		const [series, works, mediums, tags, information] = await Promise.all([
 			client.fetch(seriesQuery),
+			client.fetch(worksQuery),
 			client.fetch(mediumsQuery),
+			client.fetch(tagsQuery),
 			client.fetch(informationQuery)
 		]);
 
-		const rawData = { series, mediums, information };
+		const rawData = { series, works, mediums, tags, information };
 
 		// Process data and extract messages recursively
 		console.log('🔄 Processing localized content recursively...');
@@ -229,9 +267,11 @@ export const data = ${JSON.stringify(processedData, null, 2)} as const;
 		console.log('   - messages/en.json');
 		console.log(`   - ${totalMessages} total messages (UUID-based)`);
 		console.log(`   - ${processedData.series?.length || 0} series`);
+		console.log(`   - ${processedData.works?.length || 0} works`);
 		console.log(`   - ${processedData.mediums?.length || 0} mediums`);
+		console.log(`   - ${processedData.tags?.length || 0} tags`);
 		console.log(
-			`   - ${processedData.series?.reduce((acc, s) => acc + (s.works?.length || 0), 0) || 0} works`
+			`   - ${processedData.series?.reduce((acc, s) => acc + (s.works?.length || 0), 0) || 0} works in series`
 		);
 		console.log('   - Processed recursively for any data structure');
 	} catch (error) {
