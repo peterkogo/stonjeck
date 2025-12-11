@@ -25,12 +25,19 @@
 </script>
 
 {#if work.image}
-	<SanityImage
-		image={work.image}
-		alt={getMessage(work._id)}
-		class="aspect-square w-full object-cover"
-		width={400}
-		height={400}
-		fit="crop"
-	/>
+	<a
+		href="/works?work={work._id}"
+		data-sveltekit-preload-code="eager"
+		style:view-transition-name="work-image-{work._id}"
+		class="block"
+	>
+		<SanityImage
+			image={work.image}
+			alt={getMessage(work._id)}
+			class="aspect-square w-full cursor-pointer object-cover transition-opacity hover:opacity-90"
+			width={400}
+			height={400}
+			fit="crop"
+		/>
+	</a>
 {/if}

@@ -73,7 +73,7 @@
 		<div class="flex flex-col space-y-3 text-sm text-gray-400">
 			{@render item(m['ui.biography'](), '/bio', page.url.pathname)}
 			{#each data.series as series}
-				{@render item(m[series._id](), `/${series.slug?.current}`, page.url.pathname)}
+				{@render item(m[series._id](), `/serie/${series.slug?.current}`, page.url.pathname)}
 			{/each}
 			<div
 				class="absolute bottom-5 left-10 mt-auto flex items-center justify-end font-light tracking-wide hover:text-gray-900"

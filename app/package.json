@@ -4,7 +4,7 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"dev": "pnpm prebuild && vite dev",
+		"dev": "vite dev",
 		"prebuild": "node scripts/generate-messages.js",
 		"build": "vite build",
 		"preview": "vite preview",

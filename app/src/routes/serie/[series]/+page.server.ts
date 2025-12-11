@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
-import { data } from '../../../data';
+import { data } from '../../../../data';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const series = data.series?.find((s) => s.slug?.current === params.series);
