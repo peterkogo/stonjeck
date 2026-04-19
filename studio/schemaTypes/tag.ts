@@ -17,8 +17,8 @@ export default {
     prepare(selection: any) {
       const {title} = selection
       // Get the German version if available, otherwise fall back to English
-      const germanTitle = title?.find((item: any) => item._key === 'de')?.value
-      const englishTitle = title?.find((item: any) => item._key === 'en')?.value
+      const germanTitle = title?.find((item: any) => item.language === 'de')?.value
+      const englishTitle = title?.find((item: any) => item.language === 'en')?.value
       return {
         title: germanTitle || englishTitle || 'Untitled',
       }

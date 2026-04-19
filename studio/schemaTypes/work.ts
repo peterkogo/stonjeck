@@ -23,9 +23,9 @@ export default {
       title: 'Slug',
       type: 'slug',
       options: {
-        source: (doc: {title?: Array<{_key: string; value: string}>}) => {
-          const germanTitle = doc.title?.find((item: any) => item._key === 'de')?.value
-          const englishTitle = doc.title?.find((item: any) => item._key === 'en')?.value
+        source: (doc: {title?: Array<{_key: string; language: string; value: string}>}) => {
+          const germanTitle = doc.title?.find((item: any) => item.language === 'de')?.value
+          const englishTitle = doc.title?.find((item: any) => item.language === 'en')?.value
           return germanTitle || englishTitle || 'untitled'
         },
       },
@@ -67,8 +67,8 @@ export default {
     prepare(selection: any) {
       const {title, subtitle, media} = selection
       // Get the German version if available, otherwise fall back to English
-      const germanTitle = title?.find((item: any) => item._key === 'de')?.value
-      const englishTitle = title?.find((item: any) => item._key === 'en')?.value
+      const germanTitle = title?.find((item: any) => item.language === 'de')?.value
+      const englishTitle = title?.find((item: any) => item.language === 'en')?.value
       return {
         title: germanTitle || englishTitle || 'Untitled',
         subtitle: subtitle,
