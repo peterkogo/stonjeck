@@ -153,11 +153,16 @@ function processDataRecursively(data, messages) {
 
 	// Process each property
 	for (const [key, value] of Object.entries(data)) {
-		// Check if this is a localized field (array with _key and value)
-		if (Array.isArray(value) && value.length > 0 && value[0]._key && value[0].value !== undefined) {
+		// Check if this is a localized field (array with language and value)
+		if (
+			Array.isArray(value) &&
+			value.length > 0 &&
+			value[0].language &&
+			value[0].value !== undefined
+		) {
 			// This is a localized field - process it
-			const deValue = value.find((item) => item._key === 'de')?.value || '';
-			const enValue = value.find((item) => item._key === 'en')?.value || deValue;
+			const deValue = value.find((item) => item.language === 'de')?.value || '';
+			const enValue = value.find((item) => item.language === 'en')?.value || deValue;
 
 			// Use the object's _id as the message key
 			if (data._id) {
