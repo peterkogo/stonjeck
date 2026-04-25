@@ -1,26 +1,16 @@
 <script lang="ts">
 	import '../app.css';
-	import { onMount, type Snippet } from 'svelte';
+	import { type Snippet } from 'svelte';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { onNavigate } from '$app/navigation';
 	import { type ClassValue } from 'svelte/elements';
 	import Lang from '$lib/components/Lang.svelte';
-	import { lang, type LangText } from '$lib/lang';
+	import { isEnglish, multilang, type LangText } from '$lib/lang';
 	import { getSeriesList } from '$lib/data.remote';
-	import { type ResolvedPathname } from '$app/types';
+	import { getLocale, locales, localizeHref, setLocale } from '$lib/paraglide/runtime';
 
 	let { children }: { children: Snippet } = $props();
-
-	let isEn = $state(false);
-
-	onMount(() => {
-		const stored = localStorage.getItem('lang');
-		if (stored === 'en') {
-			document.documentElement.classList.add('lang-en');
-			isEn = true;
-		}
-	});
 
 	onNavigate((navigation) => {
 		if (!document.startViewTransition) return;
@@ -34,10 +24,7 @@
 	});
 
 	function toggleLocale() {
-		const next = !isEn;
-		document.documentElement.classList.toggle('lang-en', next);
-		localStorage.setItem('lang', next ? 'en' : 'de');
-		isEn = next;
+		setLocale(getLocale() === 'en' ? 'de' : 'en');
 	}
 </script>
 
@@ -48,18 +35,17 @@
 	></div>
 {/snippet}
 
-{#snippet item(title: LangText, link: ResolvedPathname, path: string)}
+{#snippet item(title: LangText, href: string, path: string)}
 	<div class="flex items-center justify-end">
-		{#if path === link}
+		{#if path === href}
 			{@render dot()}
 		{/if}
 		<a
-			// @ts-expect-error - link is a ResolvedPathname
-			href={resolve(link)}
+			href={resolve(href as `/${string}`)}
 			data-sveltekit-preload-code="eager"
 			class={[
 				'block cursor-pointer font-light tracking-wide hover:text-gray-900',
-				{ 'font-medium tracking-normal text-gray-900': path === link }
+				{ 'font-medium tracking-normal text-gray-900': path === href }
 			]}
 		>
 			<Lang text={title} />
@@ -80,9 +66,17 @@
 		</a>
 
 		<div class="flex flex-col space-y-3 text-sm text-gray-400">
-			{@render item(lang('Biographie', 'Biography'), '/bio', page.url.pathname)}
+		{@render item(
+			multilang('Biographie', 'Biography'),
+			localizeHref('/bio', { locale: getLocale() }),
+			page.url.pathname
+		)}
 			{#each await getSeriesList() as series (series._id)}
-				{@render item(series.title, resolve(`/${series.slug?.current}`), page.url.pathname)}
+				{@render item(
+				series.title,
+				localizeHref(`/${series.slug.current}`, { locale: getLocale() }),
+				page.url.pathname
+			)}
 			{/each}
 			<div
 				class="absolute bottom-5 left-10 mt-auto flex items-center justify-end font-light tracking-wide hover:text-gray-900"
@@ -91,11 +85,27 @@
 					type="button"
 					class="right-0 cursor-pointer"
 					onclick={toggleLocale}
-					aria-label={isEn ? 'Switch to German' : 'Switch to English'}
+					aria-label={isEnglish() ? 'Switch to German' : 'Switch to English'}
 				>
-					<span class={{ 'font-bold': !isEn }}>de</span> |
-					<span class={{ 'font-bold': isEn }}>en</span>
+					{#each locales as locale (locale)}
+						<a
+							href={resolve(localizeHref(page.url.pathname, { locale }) as `/${string}`)}
+							data-sveltekit-reload
+							style:display={locale === getLocale() ? 'block' : 'none'}
+						>
+							>{locale === 'en' ? 'deutsch' : 'english'}
+						</a>
+					{/each}
+					<!-- <span class={{ 'font-bold': !isEnglish() }}>de</span> |
+					<span class={{ 'font-bold': isEnglish() }}>en</span> -->
 				</button>
+				<!-- <nav class="locale-switcher" aria-label="Languages">
+					{#each locales as locale (locale)}
+						<a href={resolve(localizeHref(page.url.pathname, { locale }))} data-sveltekit-reload>
+							{locale}
+						</a>
+					{/each}
+				</nav> -->
 			</div>
 		</div>
 	</aside>

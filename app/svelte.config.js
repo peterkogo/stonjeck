@@ -9,6 +9,10 @@ const config = {
 		experimental: {
 			remoteFunctions: true
 		}
+		// TODO: possible optimization for fewer requests
+		// output: {
+		// 	bundleStrategy: 'single'
+		// }
 	},
 	compilerOptions: {
 		experimental: {
