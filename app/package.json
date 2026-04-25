@@ -4,16 +4,14 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"dev": "pnpm prebuild && vite dev",
-		"prebuild": "node scripts/generate-messages.js",
+		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
-		"lint": "prettier --check . && eslint .",
-		"generate-messages": "node scripts/generate-messages.js"
+		"lint": "prettier --check . && eslint ."
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.0.5",
@@ -38,7 +36,6 @@
 		"vite": "^8.0.8"
 	},
 	"dependencies": {
-		"@inlang/paraglide-js": "^2.16.0",
 		"@sanity/client": "^7.21.0",
 		"@sanity/image-url": "^2.1.1",
 		"@sveltejs/adapter-auto": "^7.0.1",

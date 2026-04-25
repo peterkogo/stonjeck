@@ -1,33 +1,15 @@
 <script lang="ts">
+	import type { WorksQueryResult } from '../../sanity.types';
+	import { pick } from '$lib/lang';
 	import SanityImage from './SanityImage.svelte';
-	import { m } from '$lib/paraglide/messages';
 
-	type WorkData = {
-		_id: string;
-		date?: string | null;
-		size?: string;
-		image?: any;
-		medium?: {
-			_id: string;
-			name?: string;
-		} | null;
-		slug?: {
-			current: string;
-		} | null;
-	};
-
-	let { work }: { work: WorkData } = $props();
-
-	// Type-safe message access
-	function getMessage(id: string): string {
-		return (m as any)[id]?.() || 'Untitled';
-	}
+	let { work }: { work: WorksQueryResult[number] } = $props();
 </script>
 
 {#if work.image}
 	<SanityImage
 		image={work.image}
-		alt={getMessage(work._id)}
+		alt={pick(work.title, 'en') || pick(work.title, 'de') || 'Untitled'}
 		class="aspect-square w-full object-cover"
 		width={400}
 		height={400}

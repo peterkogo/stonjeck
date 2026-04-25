@@ -1,8 +1,11 @@
 <script lang="ts">
-	import { urlFor } from '$lib/sanity/client';
-	import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
-	import { decode } from 'blurhash';
 	import { fade } from 'svelte/transition';
+	import { decode } from 'blurhash';
+
+	import { urlFor } from '$lib/sanity/client';
+	import type { WorksQueryResult } from '../../sanity.types';
+
+	type SanityImageWithMetadata = WorksQueryResult[number]['image'];
 
 	let {
 		image,
@@ -12,7 +15,7 @@
 		height,
 		fit = 'max'
 	}: {
-		image: SanityImageSource;
+		image: SanityImageWithMetadata;
 		alt: string;
 		class?: string;
 		width?: number;
@@ -21,14 +24,14 @@
 	} = $props();
 
 	// Check if we're dealing with a forced aspect ratio (like aspect-square)
-	const isSquareForced = className?.includes('aspect-square');
+	const isSquareForced = $derived(className?.includes('aspect-square'));
 
 	let imageLoaded = $state(false);
 	let blurHashCanvas = $state<HTMLCanvasElement | undefined>(undefined);
 	let imageRef: HTMLImageElement;
 
-	let dimensions = $derived((image as any)?.asset?.metadata?.dimensions);
-	let aspectRatio = $derived(dimensions?.aspectRatio);
+	let dimensions = $derived(image.asset.metadata.dimensions);
+	let aspectRatio = $derived(dimensions.aspectRatio);
 
 	// Create URL builder with hotspot support
 	function createImageUrl(w: number, h?: number) {
@@ -40,7 +43,7 @@
 	}
 
 	function renderBlurHash() {
-		const blurHash = (image as any)?.asset?.metadata?.blurHash;
+		const blurHash = image.asset.metadata.blurHash;
 		if (imageRef.complete || !blurHash || !blurHashCanvas) return;
 
 		const canvas = blurHashCanvas;
@@ -89,7 +92,7 @@
 		{onload}
 	/>
 	{#if !imageLoaded}
-		<div class="absolute left-0 top-0 h-full w-full items-center justify-center">
+		<div class="absolute top-0 left-0 h-full w-full items-center justify-center">
 			<canvas
 				out:fade={{ duration: 500 }}
 				bind:this={blurHashCanvas}
