@@ -68,6 +68,7 @@
 							image={work.image}
 							alt={pick(work.title, 'en') || pick(work.title, 'de')}
 							class="max-h-[calc(100vh-var(--spacing)*16)] min-h-0 min-w-0 object-contain lg:max-h-full"
+							viewTransitionName="work-{work._id}"
 						/>
 						<div class="text-l mt-2 w-full text-center align-middle lg:hidden">
 							<span class="text-l font-semibold text-gray-800">

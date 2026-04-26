@@ -6,13 +6,12 @@
 	let { work }: { work: WorksQueryResult[number] } = $props();
 </script>
 
-{#if work.image}
-	<SanityImage
-		image={work.image}
-		alt={pick(work.title, 'en') || pick(work.title, 'de') || 'Untitled'}
-		class="aspect-square w-full object-cover"
-		width={400}
-		height={400}
-		fit="crop"
-	/>
-{/if}
+<SanityImage
+	image={work.image}
+	alt={pick(work.title, 'en') || pick(work.title, 'de') || 'Untitled'}
+	class="w-full object-cover"
+	// width={400}
+	// height={400}
+	fit="crop"
+	viewTransitionName="work-{work._id}"
+/>

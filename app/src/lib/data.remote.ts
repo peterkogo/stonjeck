@@ -19,7 +19,7 @@ const seriesBySlugQuery = defineQuery(`
 		slug,
 		title,
 		order,
-		works[]-> {
+		works[]-> | order(date desc) {
 			_id,
 			slug,
 			title,

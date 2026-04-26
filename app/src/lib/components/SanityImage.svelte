@@ -11,9 +11,10 @@
 		image,
 		alt,
 		class: className,
-		width = 800,
+		width,
 		height,
-		fit = 'max'
+		fit = 'max',
+		viewTransitionName
 	}: {
 		image: SanityImageWithMetadata;
 		alt: string;
@@ -21,6 +22,7 @@
 		width?: number;
 		height?: number;
 		fit?: 'clip' | 'crop' | 'fill' | 'fillmax' | 'max' | 'min' | 'scale';
+		viewTransitionName?: string;
 	} = $props();
 
 	// Check if we're dealing with a forced aspect ratio (like aspect-square)
@@ -74,7 +76,7 @@
 	});
 </script>
 
-<div class="relative">
+<div class="relative" style:view-transition-name={viewTransitionName}>
 	<img
 		{alt}
 		class={[className, '']}

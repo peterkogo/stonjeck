@@ -1,22 +1,20 @@
 <script lang="ts">
+	import { SpannedMasonryGrid, SpannedFrame } from '@masonry-grid/svelte';
 	import type { WorksQueryResult } from '../../sanity.types';
 	import Work from './Work.svelte';
 
 	let { works }: { works: WorksQueryResult } = $props();
-
-	const validWorks = $derived(works.filter((work) => work.image));
 </script>
 
 <div class="container mx-auto px-8 py-8">
-	<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
-		{#each validWorks as work (work._id)}
-			<Work {work} />
+	<SpannedMasonryGrid frameWidth={260} gap={15} precision={100} class="w-full">
+		{#each works as work (work._id)}
+			<SpannedFrame
+				width={work.image.asset.metadata.dimensions.width}
+				height={work.image.asset.metadata.dimensions.height}
+			>
+				<Work {work} />
+			</SpannedFrame>
 		{/each}
-	</div>
-
-	{#if validWorks.length === 0}
-		<div class="flex items-center justify-center py-12">
-			<p class="text-gray-500">No works available.</p>
-		</div>
-	{/if}
+	</SpannedMasonryGrid>
 </div>
