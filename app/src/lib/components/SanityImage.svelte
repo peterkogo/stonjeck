@@ -13,10 +13,10 @@
 		alt,
 		class: className,
 		imageClass,
-		width = 800,
+		width = 1000,
 		height,
 		fit = 'max',
-		quality = 75,
+		quality = 50,
 		displayBlurHash = true,
 		viewTransitionName
 	}: {
@@ -45,10 +45,6 @@
 			builder = builder.height(h);
 		}
 		return builder.url();
-	}
-
-	function scaledHeight(w: number) {
-		return height ? Math.round((height * w) / width) : undefined;
 	}
 
 	function renderBlurHash() {
@@ -88,17 +84,13 @@
 	style:view-transition-name={viewTransitionName}
 >
 	<img
-		width={dimensions.width}
-		height={dimensions.height}
-		{alt}
+		width="{width}px"
+		height="{width / dimensions.aspectRatio}px"
+		//{alt}
 		class={['block h-auto max-w-full', imageClass]}
 		loading="lazy"
 		bind:this={imageRef}
 		src={createImageUrl(width, height)}
-		srcSet={[500, 1000, 1500]
-			.map((w) => `${createImageUrl(w, scaledHeight(w))} ${w}w`)
-			.join(', ')}
-		sizes="(max-width: 500px) 100vw, (max-width: 1000px) 100vw, 1500px"
 		{onload}
 	/>
 	<!-- {#if !imageLoaded}
