@@ -93,7 +93,7 @@
 							alt={pick(work.title, 'en') || pick(work.title, 'de')}
 							imageClass="max-h-[calc(100vh-var(--spacing)*32)] min-h-0 min-w-0 object-contain"
 							viewTransitionName="work-{work._id}"
-							width={1000}
+							width={1200}
 						/>
 						<div class="text-l mt-2 w-full text-center align-middle lg:hidden">
 							<span class="text-l font-semibold text-gray-800">

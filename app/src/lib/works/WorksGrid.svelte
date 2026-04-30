@@ -34,10 +34,9 @@
 
 <!-- <svelte:window onpointerup={cleanTransitionWorkId} onpointercancel={cleanTransitionWorkId} /> -->
 
-<div class="w-full overflow-x-hidden p-8">
+<div class="w-full overflow-x-hidden p-5 lg:p-8">
 	<div
-		class="grid overflow-visible"
-		style:--frame-width="260px"
+		class="grid overflow-visible [--frame-width:160px] md:[--frame-width:260px]"
 		style:--gap="15px"
 		style:--precision={100}
 		style:margin="calc(-1 * var(--gap, 0) / 2)"
@@ -45,16 +44,35 @@
 	>
 		<div
 			style:--width={100}
-			style:--height={15}
-			style:aspect-ratio={100 / 15}
+			style:--height={20}
+			style:aspect-ratio={100 / 20}
 			style:width="100%"
 			style:height="100%"
 			style:position="relative"
 			style:grid-row="span calc(var(--height) / var(--width) * var(--precision))"
 		>
 			<div style:position="absolute" style:inset="calc(var(--gap, 0) / 2)">
-				<h1 class="mb-8 text-2xl font-semibold whitespace-nowrap text-gray-900">
-					Karim Stonjeck
+				<h1 class="mb-8 w-full font-semibold text-gray-900" aria-label="Karim Stonjeck">
+					<svg
+						class="block w-full"
+						viewBox="0 0 1000 200"
+						preserveAspectRatio="xMidYMid meet"
+						aria-hidden="true"
+						focusable="false"
+					>
+						<text
+							x="0"
+							y="132"
+							fill="currentColor"
+							font-family="'DM Sans', sans-serif"
+							font-size="112"
+							font-weight="600"
+							textLength="1000"
+							lengthAdjust="spacing"
+						>
+							Karim Stonjeck
+						</text>
+					</svg>
 				</h1>
 			</div>
 		</div>
