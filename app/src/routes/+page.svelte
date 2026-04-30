@@ -1,5 +1,5 @@
 <script lang="ts">
-	import WorksGrid from '$lib/components/WorksGrid.svelte';
+	import WorksGrid from '$lib/works/WorksGrid.svelte';
 	import { getWorks } from '$lib/data.remote';
 
 	const works = await getWorks();

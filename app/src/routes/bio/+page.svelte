@@ -16,11 +16,7 @@
 <div class="mt-10 ml-8 flex w-full items-center justify-center">
 	<div class="relative w-48">
 		{#if information.titleImage?.image}
-			<SanityImage
-				image={information.titleImage.image}
-				alt="Most recent work of the artist"
-				class="max-h-72 min-h-0 min-w-0 object-contain"
-			/>
+			<SanityImage image={information.titleImage.image} alt="Most recent work of the artist" />
 		{/if}
 	</div>
 

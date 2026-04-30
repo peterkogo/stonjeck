@@ -1,0 +1,98 @@
+<script lang="ts">
+	import { resolve } from '$app/paths';
+	import { flip } from 'svelte/animate';
+	import { fade } from 'svelte/transition';
+	import type { WorksQueryResult } from '../../sanity.types';
+	import Work from './Work.svelte';
+	import { filterTagsState } from './filter-tags.svelte';
+	import { cubicInOut, cubicIn } from 'svelte/easing';
+	import { localizeHref } from '$lib/paraglide/runtime';
+
+	let { works }: { works: WorksQueryResult } = $props();
+
+	type WorkWithSeries = WorksQueryResult[number] & {
+		series?: Array<{ slug: { current: string } | null } | null> | null;
+	};
+
+	const filteredWorks = $derived.by(() => {
+		if (filterTagsState.selected.length === 0) return works;
+
+		const selectedFilters = new Set(filterTagsState.selected);
+
+		return (works as WorkWithSeries[]).filter((work) => {
+			if (!work.series || work.series.length === 0) return false;
+
+			return work.series.some((series) => {
+				const slug = series?.slug?.current;
+				return slug ? selectedFilters.has(slug) : false;
+			});
+		});
+	});
+
+	let transitionWorkId = $state<string | undefined>(undefined);
+</script>
+
+<!-- <svelte:window onpointerup={cleanTransitionWorkId} onpointercancel={cleanTransitionWorkId} /> -->
+
+<div class="w-full overflow-x-hidden p-8">
+	<div
+		class="grid overflow-visible"
+		style:--frame-width="260px"
+		style:--gap="15px"
+		style:--precision={100}
+		style:margin="calc(-1 * var(--gap, 0) / 2)"
+		style:grid-template-columns="repeat(auto-fill, minmax(var(--frame-width), 1fr))"
+	>
+		<div
+			style:--width={100}
+			style:--height={15}
+			style:aspect-ratio={100 / 15}
+			style:width="100%"
+			style:height="100%"
+			style:position="relative"
+			style:grid-row="span calc(var(--height) / var(--width) * var(--precision))"
+		>
+			<div style:position="absolute" style:inset="calc(var(--gap, 0) / 2)">
+				<h1 class="mb-8 text-2xl font-semibold whitespace-nowrap text-gray-900">
+					Karim Stonjeck
+				</h1>
+			</div>
+		</div>
+		{#each filteredWorks as work (work._id)}
+			{@const dimensions = work.image.asset.metadata.dimensions}
+			{@const slug = work.slug?.current}
+			<div
+				style:--width={dimensions.width}
+				style:--height={dimensions.height}
+				style:aspect-ratio={dimensions.aspectRatio}
+				style:width="100%"
+				style:height="100%"
+				style:position="relative"
+				style:grid-row="span calc(var(--height) / var(--width) * var(--precision))"
+				animate:flip={{ duration: 500, easing: cubicInOut }}
+			>
+				<div
+					style:position="absolute"
+					style:inset="calc(var(--gap, 0) / 2)"
+					in:fade={{ delay: 100, duration: 250, easing: cubicIn }}
+					out:fade={{ duration: 2000, easing: cubicIn }}
+				>
+					{#if slug}
+						<a
+							onpointerdown={() => {
+								transitionWorkId = work._id;
+							}}
+							href={resolve(
+								localizeHref(`/works#${slug}` as `/works#${string}`) as `/works#${string}`
+							)}
+						>
+							<Work {work} transition={undefined} />
+						</a>
+					{:else}
+						<Work {work} />
+					{/if}
+				</div>
+			</div>
+		{/each}
+	</div>
+</div>

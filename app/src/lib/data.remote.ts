@@ -62,7 +62,13 @@ const worksQuery = defineQuery(`
 		size,
 		tags[]-> {
 			_id,
-			name
+			name,
+			slug
+		},
+		"series": *[_type == "series" && references(^._id)] {
+			_id,
+			slug,
+			title
 		},
 		medium-> {
 			_id,
