@@ -12,18 +12,24 @@
  * ---------------------------------------------------------------------------------
  */
 
+export declare const internalGroqTypeReferenceTo: unique symbol;
+
 // Source: schema.json
+export type WorkReference = {
+	_ref: string;
+	_type: 'reference';
+	_weak?: boolean;
+	[internalGroqTypeReferenceTo]?: 'work';
+};
+
 export type Information = {
 	_id: string;
 	_type: 'information';
 	_createdAt: string;
 	_updatedAt: string;
 	_rev: string;
-	biography?: Array<
-		{
-			_key: string;
-		} & InternationalizedArrayTextValue
-	>;
+	titleImage?: WorkReference;
+	biography?: InternationalizedArrayText;
 	impressum?: Array<{
 		children?: Array<{
 			marks?: Array<string>;
@@ -44,6 +50,19 @@ export type Information = {
 	}>;
 };
 
+export type InternationalizedArrayText = Array<
+	{
+		_key: string;
+	} & InternationalizedArrayTextValue
+>;
+
+export type SanityImageAssetReference = {
+	_ref: string;
+	_type: 'reference';
+	_weak?: boolean;
+	[internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
+};
+
 export type Exhibitions = {
 	_id: string;
 	_type: 'exhibitions';
@@ -61,33 +80,65 @@ export type Exhibitions = {
 		location?: Geopoint;
 	};
 	photos?: Array<{
-		asset?: {
-			_ref: string;
-			_type: 'reference';
-			_weak?: boolean;
-			[internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
-		};
+		asset?: SanityImageAssetReference;
 		media?: unknown;
 		hotspot?: SanityImageHotspot;
 		crop?: SanityImageCrop;
-		alt?: Array<
-			{
-				_key: string;
-			} & InternationalizedArrayStringValue
-		>;
-		caption?: Array<
-			{
-				_key: string;
-			} & InternationalizedArrayStringValue
-		>;
+		alt?: InternationalizedArrayString;
+		caption?: InternationalizedArrayString;
 		_type: 'image';
 		_key: string;
 	}>;
-	description?: Array<
-		{
-			_key: string;
-		} & InternationalizedArrayTextValue
-	>;
+	description?: InternationalizedArrayText;
+};
+
+export type InternationalizedArrayString = Array<
+	{
+		_key: string;
+	} & InternationalizedArrayStringValue
+>;
+
+export type SanityImageCrop = {
+	_type: 'sanity.imageCrop';
+	top?: number;
+	bottom?: number;
+	left?: number;
+	right?: number;
+};
+
+export type SanityImageHotspot = {
+	_type: 'sanity.imageHotspot';
+	x?: number;
+	y?: number;
+	height?: number;
+	width?: number;
+};
+
+export type Geopoint = {
+	_type: 'geopoint';
+	lat?: number;
+	lng?: number;
+	alt?: number;
+};
+
+export type Slug = {
+	_type: 'slug';
+	current?: string;
+	source?: string;
+};
+
+export type TagReference = {
+	_ref: string;
+	_type: 'reference';
+	_weak?: boolean;
+	[internalGroqTypeReferenceTo]?: 'tag';
+};
+
+export type MediumReference = {
+	_ref: string;
+	_type: 'reference';
+	_weak?: boolean;
+	[internalGroqTypeReferenceTo]?: 'medium';
 };
 
 export type Work = {
@@ -97,36 +148,22 @@ export type Work = {
 	_updatedAt: string;
 	_rev: string;
 	image?: {
-		asset?: {
-			_ref: string;
-			_type: 'reference';
-			_weak?: boolean;
-			[internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
-		};
+		asset?: SanityImageAssetReference;
 		media?: unknown;
 		hotspot?: SanityImageHotspot;
 		crop?: SanityImageCrop;
 		_type: 'image';
 	};
-	title?: Array<
-		{
-			_key: string;
-		} & InternationalizedArrayStringValue
-	>;
+	title?: InternationalizedArrayString;
 	slug?: Slug;
-	date?: string;
-	medium?: {
-		_ref: string;
-		_type: 'reference';
-		_weak?: boolean;
-		[internalGroqTypeReferenceTo]?: 'medium';
-	};
-	size?: string;
-	description?: Array<
+	tags?: Array<
 		{
 			_key: string;
-		} & InternationalizedArrayTextValue
+		} & TagReference
 	>;
+	date?: string;
+	medium?: MediumReference;
+	size?: string;
 };
 
 export type Series = {
@@ -135,25 +172,23 @@ export type Series = {
 	_createdAt: string;
 	_updatedAt: string;
 	_rev: string;
-	title?: Array<
-		{
-			_key: string;
-		} & InternationalizedArrayStringValue
-	>;
+	title?: InternationalizedArrayString;
 	slug?: Slug;
-	description?: Array<
+	order?: number;
+	works?: Array<
 		{
 			_key: string;
-		} & InternationalizedArrayTextValue
+		} & WorkReference
 	>;
-	order?: number;
-	works?: Array<{
-		_ref: string;
-		_type: 'reference';
-		_weak?: boolean;
-		_key: string;
-		[internalGroqTypeReferenceTo]?: 'work';
-	}>;
+};
+
+export type Tag = {
+	_id: string;
+	_type: 'tag';
+	_createdAt: string;
+	_updatedAt: string;
+	_rev: string;
+	name?: InternationalizedArrayString;
 };
 
 export type Medium = {
@@ -162,34 +197,20 @@ export type Medium = {
 	_createdAt: string;
 	_updatedAt: string;
 	_rev: string;
-	name?: Array<
-		{
-			_key: string;
-		} & InternationalizedArrayStringValue
-	>;
+	name?: InternationalizedArrayString;
 };
 
 export type InternationalizedArrayTextValue = {
 	_type: 'internationalizedArrayTextValue';
 	value?: string;
+	language?: string;
 };
 
 export type InternationalizedArrayStringValue = {
 	_type: 'internationalizedArrayStringValue';
 	value?: string;
+	language?: string;
 };
-
-export type InternationalizedArrayText = Array<
-	{
-		_key: string;
-	} & InternationalizedArrayTextValue
->;
-
-export type InternationalizedArrayString = Array<
-	{
-		_key: string;
-	} & InternationalizedArrayStringValue
->;
 
 export type SanityImagePaletteSwatch = {
 	_type: 'sanity.imagePaletteSwatch';
@@ -217,20 +238,16 @@ export type SanityImageDimensions = {
 	aspectRatio?: number;
 };
 
-export type SanityImageHotspot = {
-	_type: 'sanity.imageHotspot';
-	x?: number;
-	y?: number;
-	height?: number;
-	width?: number;
-};
-
-export type SanityImageCrop = {
-	_type: 'sanity.imageCrop';
-	top?: number;
-	bottom?: number;
-	left?: number;
-	right?: number;
+export type SanityImageMetadata = {
+	_type: 'sanity.imageMetadata';
+	location?: Geopoint;
+	dimensions?: SanityImageDimensions;
+	palette?: SanityImagePalette;
+	lqip?: string;
+	blurHash?: string;
+	thumbHash?: string;
+	hasAlpha?: boolean;
+	isOpaque?: boolean;
 };
 
 export type SanityFileAsset = {
@@ -253,6 +270,13 @@ export type SanityFileAsset = {
 	path?: string;
 	url?: string;
 	source?: SanityAssetSourceData;
+};
+
+export type SanityAssetSourceData = {
+	_type: 'sanity.assetSourceData';
+	name?: string;
+	id?: string;
+	url?: string;
 };
 
 export type SanityImageAsset = {
@@ -278,56 +302,224 @@ export type SanityImageAsset = {
 	source?: SanityAssetSourceData;
 };
 
-export type SanityImageMetadata = {
-	_type: 'sanity.imageMetadata';
-	location?: Geopoint;
-	dimensions?: SanityImageDimensions;
-	palette?: SanityImagePalette;
-	lqip?: string;
-	blurHash?: string;
-	hasAlpha?: boolean;
-	isOpaque?: boolean;
-};
-
-export type Geopoint = {
-	_type: 'geopoint';
-	lat?: number;
-	lng?: number;
-	alt?: number;
-};
-
-export type Slug = {
-	_type: 'slug';
-	current?: string;
-	source?: string;
-};
-
-export type SanityAssetSourceData = {
-	_type: 'sanity.assetSourceData';
-	name?: string;
-	id?: string;
-	url?: string;
-};
-
 export type AllSanitySchemaTypes =
+	| WorkReference
 	| Information
+	| InternationalizedArrayText
+	| SanityImageAssetReference
 	| Exhibitions
+	| InternationalizedArrayString
+	| SanityImageCrop
+	| SanityImageHotspot
+	| Geopoint
+	| Slug
+	| TagReference
+	| MediumReference
 	| Work
 	| Series
+	| Tag
 	| Medium
 	| InternationalizedArrayTextValue
 	| InternationalizedArrayStringValue
-	| InternationalizedArrayText
-	| InternationalizedArrayString
 	| SanityImagePaletteSwatch
 	| SanityImagePalette
 	| SanityImageDimensions
-	| SanityImageHotspot
-	| SanityImageCrop
-	| SanityFileAsset
-	| SanityImageAsset
 	| SanityImageMetadata
-	| Geopoint
-	| Slug
-	| SanityAssetSourceData;
-export declare const internalGroqTypeReferenceTo: unique symbol;
+	| SanityFileAsset
+	| SanityAssetSourceData
+	| SanityImageAsset;
+
+// Source: ../app/src/lib/data.remote.ts
+// Variable: seriesListQuery
+// Query: *[_type == "series"] | order(order desc) {		_id,		slug,		title,		order	}
+export type SeriesListQueryResult = Array<{
+	_id: string;
+	slug: Slug | null;
+	title: InternationalizedArrayString | null;
+	order: number | null;
+}>;
+
+// Source: ../app/src/lib/data.remote.ts
+// Variable: seriesBySlugQuery
+// Query: *[_type == "series" && slug.current == $slug][0] {		_id,		slug,		title,		order,		works[]-> | order(date desc) {			_id,			slug,			title,			image {				...,				asset->{					...,					metadata{						blurHash,						dimensions					}				}			},			date,			size,			medium-> {				_id,				name			}		}	}
+export type SeriesBySlugQueryResult = {
+	_id: string;
+	slug: Slug | null;
+	title: InternationalizedArrayString | null;
+	order: number | null;
+	works: Array<{
+		_id: string;
+		slug: Slug | null;
+		title: InternationalizedArrayString | null;
+		image: {
+			asset: {
+				_id: string;
+				_type: 'sanity.imageAsset';
+				_createdAt: string;
+				_updatedAt: string;
+				_rev: string;
+				originalFilename?: string;
+				label?: string;
+				title?: string;
+				description?: string;
+				altText?: string;
+				sha1hash?: string;
+				extension?: string;
+				mimeType?: string;
+				size?: number;
+				assetId?: string;
+				uploadId?: string;
+				path?: string;
+				url?: string;
+				metadata: {
+					blurHash: string | null;
+					dimensions: SanityImageDimensions | null;
+				} | null;
+				source?: SanityAssetSourceData;
+			} | null;
+			media?: unknown;
+			hotspot?: SanityImageHotspot;
+			crop?: SanityImageCrop;
+			_type: 'image';
+		} | null;
+		date: string | null;
+		size: string | null;
+		medium: {
+			_id: string;
+			name: InternationalizedArrayString | null;
+		} | null;
+	}> | null;
+} | null;
+
+// Source: ../app/src/lib/data.remote.ts
+// Variable: worksQuery
+// Query: *[_type == "work"] | order(date desc) {		_id,		slug,		title,		image {			...,			asset->{				...,				metadata{					blurHash,					dimensions				}			}		},		date,		size,		tags[]-> {			_id,			name,			slug		},		"series": *[_type == "series" && references(^._id)] {			_id,			slug,			title		},		medium-> {			_id,			name		}	}
+export type WorksQueryResult = Array<{
+	_id: string;
+	slug: Slug | null;
+	title: InternationalizedArrayString | null;
+	image: {
+		asset: {
+			_id: string;
+			_type: 'sanity.imageAsset';
+			_createdAt: string;
+			_updatedAt: string;
+			_rev: string;
+			originalFilename?: string;
+			label?: string;
+			title?: string;
+			description?: string;
+			altText?: string;
+			sha1hash?: string;
+			extension?: string;
+			mimeType?: string;
+			size?: number;
+			assetId?: string;
+			uploadId?: string;
+			path?: string;
+			url?: string;
+			metadata: {
+				blurHash: string | null;
+				dimensions: SanityImageDimensions | null;
+			} | null;
+			source?: SanityAssetSourceData;
+		} | null;
+		media?: unknown;
+		hotspot?: SanityImageHotspot;
+		crop?: SanityImageCrop;
+		_type: 'image';
+	} | null;
+	date: string | null;
+	size: string | null;
+	tags: Array<{
+		_id: string;
+		name: InternationalizedArrayString | null;
+		slug: null;
+	}> | null;
+	series: Array<{
+		_id: string;
+		slug: Slug | null;
+		title: InternationalizedArrayString | null;
+	}>;
+	medium: {
+		_id: string;
+		name: InternationalizedArrayString | null;
+	} | null;
+}>;
+
+// Source: ../app/src/lib/data.remote.ts
+// Variable: informationQuery
+// Query: *[_type == "information"][0] {		_id,		_type,		titleImage-> {			image {				...,				asset->{					...,					metadata{						blurHash,						dimensions					}				}			}		},		biography,		impressum	}
+export type InformationQueryResult = {
+	_id: string;
+	_type: 'information';
+	titleImage: {
+		image: {
+			asset: {
+				_id: string;
+				_type: 'sanity.imageAsset';
+				_createdAt: string;
+				_updatedAt: string;
+				_rev: string;
+				originalFilename?: string;
+				label?: string;
+				title?: string;
+				description?: string;
+				altText?: string;
+				sha1hash?: string;
+				extension?: string;
+				mimeType?: string;
+				size?: number;
+				assetId?: string;
+				uploadId?: string;
+				path?: string;
+				url?: string;
+				metadata: {
+					blurHash: string | null;
+					dimensions: SanityImageDimensions | null;
+				} | null;
+				source?: SanityAssetSourceData;
+			} | null;
+			media?: unknown;
+			hotspot?: SanityImageHotspot;
+			crop?: SanityImageCrop;
+			_type: 'image';
+		} | null;
+	} | null;
+	biography: InternationalizedArrayText | null;
+	impressum: Array<{
+		children?: Array<{
+			marks?: Array<string>;
+			text?: string;
+			_type: 'span';
+			_key: string;
+		}>;
+		style?: 'blockquote' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'normal';
+		listItem?: 'bullet' | 'number';
+		markDefs?: Array<{
+			href?: string;
+			_type: 'link';
+			_key: string;
+		}>;
+		level?: number;
+		_type: 'block';
+		_key: string;
+	}> | null;
+} | null;
+
+// Source: ../app/src/lib/data.remote.ts
+// Variable: seriesSlugsQuery
+// Query: *[_type == "series" && defined(slug.current)].slug.current
+export type SeriesSlugsQueryResult = Array<string | null>;
+
+// Query TypeMap
+import '@sanity/client';
+declare module '@sanity/client' {
+	interface SanityQueries {
+		'\n\t*[_type == "series"] | order(order desc) {\n\t\t_id,\n\t\tslug,\n\t\ttitle,\n\t\torder\n\t}\n': SeriesListQueryResult;
+		'\n\t*[_type == "series" && slug.current == $slug][0] {\n\t\t_id,\n\t\tslug,\n\t\ttitle,\n\t\torder,\n\t\tworks[]-> | order(date desc) {\n\t\t\t_id,\n\t\t\tslug,\n\t\t\ttitle,\n\t\t\timage {\n\t\t\t\t...,\n\t\t\t\tasset->{\n\t\t\t\t\t...,\n\t\t\t\t\tmetadata{\n\t\t\t\t\t\tblurHash,\n\t\t\t\t\t\tdimensions\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t},\n\t\t\tdate,\n\t\t\tsize,\n\t\t\tmedium-> {\n\t\t\t\t_id,\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n': SeriesBySlugQueryResult;
+		'\n\t*[_type == "work"] | order(date desc) {\n\t\t_id,\n\t\tslug,\n\t\ttitle,\n\t\timage {\n\t\t\t...,\n\t\t\tasset->{\n\t\t\t\t...,\n\t\t\t\tmetadata{\n\t\t\t\t\tblurHash,\n\t\t\t\t\tdimensions\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\tdate,\n\t\tsize,\n\t\ttags[]-> {\n\t\t\t_id,\n\t\t\tname,\n\t\t\tslug\n\t\t},\n\t\t"series": *[_type == "series" && references(^._id)] {\n\t\t\t_id,\n\t\t\tslug,\n\t\t\ttitle\n\t\t},\n\t\tmedium-> {\n\t\t\t_id,\n\t\t\tname\n\t\t}\n\t}\n': WorksQueryResult;
+		'\n\t*[_type == "information"][0] {\n\t\t_id,\n\t\t_type,\n\t\ttitleImage-> {\n\t\t\timage {\n\t\t\t\t...,\n\t\t\t\tasset->{\n\t\t\t\t\t...,\n\t\t\t\t\tmetadata{\n\t\t\t\t\t\tblurHash,\n\t\t\t\t\t\tdimensions\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\tbiography,\n\t\timpressum\n\t}\n': InformationQueryResult;
+		'\n\t*[_type == "series" && defined(slug.current)].slug.current\n': SeriesSlugsQueryResult;
+	}
+}

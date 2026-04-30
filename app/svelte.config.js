@@ -5,10 +5,19 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
 	preprocess: vitePreprocess(),
 	kit: {
-		adapter: adapter()
+		adapter: adapter(),
+		experimental: {
+			remoteFunctions: true
+		}
+		// TODO: possible optimization for fewer requests
+		// output: {
+		// 	bundleStrategy: 'single'
+		// }
 	},
-	output: {
-		bundleStrategy: 'single'
+	compilerOptions: {
+		experimental: {
+			async: true
+		}
 	}
 };
 

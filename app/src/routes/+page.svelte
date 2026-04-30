@@ -1,8 +1,8 @@
 <script lang="ts">
-	import WorksGrid from '$lib/components/WorksGrid.svelte';
-	import type { PageData } from './$types';
+	import WorksGrid from '$lib/works/WorksGrid.svelte';
+	import { getWorks } from '$lib/data.remote';
 
-	let { data }: { data: PageData } = $props();
+	const works = await getWorks();
 </script>
 
 <svelte:head>
@@ -10,4 +10,4 @@
 	<meta name="description" content="Discover the artwork collection of Karim Stonjeck" />
 </svelte:head>
 
-<WorksGrid works={data.works} />
+<WorksGrid {works} />

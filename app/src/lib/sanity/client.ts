@@ -1,6 +1,6 @@
 import { createClient } from '@sanity/client';
-import imageUrlBuilder from '@sanity/image-url';
-import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
+import { createImageUrlBuilder, type SanityImageSource } from '@sanity/image-url';
+
 import {
 	PUBLIC_SANITY_PROJECT_ID,
 	PUBLIC_SANITY_DATASET,
@@ -18,29 +18,24 @@ export const projectId = assertEnvVar(PUBLIC_SANITY_PROJECT_ID, 'PUBLIC_SANITY_P
 export const dataset = assertEnvVar(PUBLIC_SANITY_DATASET, 'PUBLIC_SANITY_DATASET');
 export const apiVersion = PUBLIC_SANITY_API_VERSION || '2025-06-15';
 
-// Public client for browser-side image handling
+// client serving uncached content everything is static anyway
+// we want the build to always have the newest content
 export const sanityClient = createClient({
 	projectId,
 	dataset,
 	apiVersion,
-	useCdn: true,
-	stega: false
+	useCdn: false
 });
 
+// Only use cached client for images (not sure if this is necessary)
+const cachedClient = createClient({
+	projectId,
+	dataset,
+	apiVersion,
+	useCdn: false
+});
+const builder = createImageUrlBuilder(cachedClient);
+
 export function urlFor(source: SanityImageSource) {
-	const builder = imageUrlBuilder(sanityClient);
-
 	return builder.image(source);
-}
-
-// Server-side client with read token (will be configured in server code)
-export function createServerClient(token?: string) {
-	return createClient({
-		projectId,
-		dataset,
-		apiVersion,
-		useCdn: false,
-		token,
-		stega: false
-	});
 }

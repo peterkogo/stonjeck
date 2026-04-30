@@ -58,6 +58,18 @@ export default {
       validation: (Rule: any) => Rule.required(),
     },
   ],
+  orderings: [
+    {
+      title: 'Date, Newest',
+      name: 'dateDesc',
+      by: [{field: 'date', direction: 'desc'}],
+    },
+    {
+      title: 'Date, Oldest',
+      name: 'dateAsc',
+      by: [{field: 'date', direction: 'asc'}],
+    },
+  ],
   preview: {
     select: {
       title: 'title',
