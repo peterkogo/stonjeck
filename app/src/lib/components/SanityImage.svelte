@@ -32,9 +32,6 @@
 		viewTransitionName?: string;
 	} = $props();
 
-	// Check if we're dealing with a forced aspect ratio (like aspect-square)
-	const isSquareForced = $derived(className?.includes('aspect-square'));
-
 	let imageLoaded = $state(false);
 	let blurHashCanvas = $state<HTMLCanvasElement | undefined>(undefined);
 	let imageRef: HTMLImageElement;
@@ -91,6 +88,8 @@
 	style:view-transition-name={viewTransitionName}
 >
 	<img
+		width={dimensions.width}
+		height={dimensions.height}
 		{alt}
 		class={['block h-auto max-w-full', imageClass]}
 		loading="lazy"
@@ -102,18 +101,16 @@
 		sizes="(max-width: 500px) 100vw, (max-width: 1000px) 100vw, 1500px"
 		{onload}
 	/>
-	{#if !imageLoaded}
-		<!-- <div class="absolute top-0 left-0 h-full w-full items-center justify-center"> -->
+	<!-- {#if !imageLoaded}
 		<canvas
 			out:fade={{ duration: displayBlurHash ? 500 : 0 }}
 			bind:this={blurHashCanvas}
 			width="32"
 			height="32"
-			style:aspect-ratio={isSquareForced ? '1' : dimensions.aspectRatio}
-			style:width={isSquareForced || dimensions.aspectRatio > 1 ? '100%' : 'auto'}
-			style:height={isSquareForced || dimensions.aspectRatio > 1 ? 'auto' : '100%'}
+			style:aspect-ratio={dimensions.aspectRatio}
+			style:width={dimensions.aspectRatio > 1 ? '100%' : 'auto'}
+			style:height={dimensions.aspectRatio > 1 ? 'auto' : '100%'}
 			class="absolute inset-0 object-cover"
 		></canvas>
-		<!-- </div> -->
-	{/if}
+	{/if} -->
 </div>
