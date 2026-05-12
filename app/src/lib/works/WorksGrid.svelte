@@ -3,10 +3,13 @@
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
 	import type { WorksQueryResult } from '../../sanity.types';
-	import Work from './Work.svelte';
 	import { filterTagsState } from './filter-tags.svelte';
 	import { cubicInOut, cubicIn } from 'svelte/easing';
 	import { localizeHref } from '$lib/paraglide/runtime';
+	import { pick } from '$lib/lang';
+
+	import SanityImage from '$lib/components/SanityImage.svelte';
+	import KarimStonjeck from '$lib/components/KarimStonjeck.svelte';
 
 	let { works }: { works: WorksQueryResult } = $props();
 
@@ -29,14 +32,14 @@
 		});
 	});
 
-	let transitionWorkId = $state<string | undefined>(undefined);
+	let transitionWorkId = $state<string | undefined>();
 </script>
 
 <!-- <svelte:window onpointerup={cleanTransitionWorkId} onpointercancel={cleanTransitionWorkId} /> -->
 
 <div class="w-full overflow-x-hidden p-5 lg:p-8">
 	<div
-		class="grid overflow-visible [--frame-width:160px] md:[--frame-width:260px]"
+		class="grid overflow-visible [--frame-width:160px] md:[--frame-width:360px]"
 		style:--gap="15px"
 		style:--precision={100}
 		style:margin="calc(-1 * var(--gap, 0) / 2)"
@@ -51,33 +54,18 @@
 			style:position="relative"
 			style:grid-row="span calc(var(--height) / var(--width) * var(--precision))"
 		>
-			<div style:position="absolute" style:inset="calc(var(--gap, 0) / 2)">
-				<h1 class="mb-8 w-full font-semibold text-gray-900" aria-label="Karim Stonjeck">
-					<svg
-						class="block w-full"
-						viewBox="0 0 1000 200"
-						preserveAspectRatio="xMidYMid meet"
-						aria-hidden="true"
-						focusable="false"
-					>
-						<text
-							x="0"
-							y="132"
-							fill="currentColor"
-							font-family="'DM Sans', sans-serif"
-							font-size="112"
-							font-weight="600"
-							textLength="1000"
-							lengthAdjust="spacing"
-						>
-							Karim Stonjeck
-						</text>
-					</svg>
-				</h1>
+			<div style:padding="calc(var(--gap, 0) / 2)">
+				<a href={resolve((localizeHref('/bio') as '/bio') || '/en/bio')}>
+					<KarimStonjeck class="text-brown" underline />
+				</a>
 			</div>
 		</div>
 		{#each filteredWorks as work (work._id)}
-			{@const dimensions = work.image.asset.metadata.dimensions}
+			{@const dimensions = work.image?.asset?.metadata?.dimensions ?? {
+				width: 0,
+				height: 0,
+				aspectRatio: 0
+			}}
 			{@const slug = work.slug?.current}
 			<div
 				style:--width={dimensions.width}
@@ -100,14 +88,20 @@
 							onpointerdown={() => {
 								transitionWorkId = work._id;
 							}}
-							href={resolve(
-								localizeHref(`/works#${slug}` as `/works#${string}`) as `/works#${string}`
-							)}
+							href={resolve(localizeHref(`/works#${slug}`) as `/works#${string}`)}
 						>
-							<Work {work} transition={undefined} />
+							<SanityImage
+								image={work.image}
+								alt={pick(work.title, 'en') || pick(work.title, 'de') || 'Untitled'}
+								width={1000}
+								quality={55}
+								fit="crop"
+								viewTransitionName={transitionWorkId === work._id
+									? `work-${work._id}`
+									: undefined}
+								displayBlurHash={true}
+							/>
 						</a>
-					{:else}
-						<Work {work} />
 					{/if}
 				</div>
 			</div>

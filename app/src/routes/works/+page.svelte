@@ -2,19 +2,12 @@
 	import { replaceState } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	// import { getSeries } from '$lib/data.remote';
 	import SanityImage from '$lib/components/SanityImage.svelte';
 	import Lang from '$lib/components/Lang.svelte';
 	import { pick } from '$lib/lang';
 	import { getWorks } from '$lib/data.remote';
 
 	const works = await getWorks();
-
-	// const filteredWorks = $derived.by(() => {
-	// 	return works.filter((work) =>
-	// 		work.tags.some((tag) => filterTagsState.selected.includes(tag.slug))
-	// 	);
-	// });
 
 	let scrollContainer: HTMLDivElement | undefined = $state();
 	let currentIndex = $state(0);
@@ -91,16 +84,17 @@
 						<SanityImage
 							image={work.image}
 							alt={pick(work.title, 'en') || pick(work.title, 'de')}
-							imageClass="max-h-[calc(100vh-var(--spacing)*32)] min-h-0 min-w-0 object-contain"
+							class="max-h-[calc(100vh-var(--spacing)*32)]"
+							imageClass="max-h-[calc(100vh-var(--spacing)*32)]"
 							viewTransitionName="work-{work._id}"
-							width={1200}
+							width={1600}
 						/>
 						<div class="text-l mt-2 w-full text-center align-middle lg:hidden">
 							<span class="text-l font-semibold text-gray-800">
 								<Lang text={work.title} /> •
 							</span>
 							<span class="text-[0.8rem] text-gray-500">
-								<Lang text={work.medium.name} /> •
+								<Lang text={work.medium?.name} /> •
 							</span>
 							<span class="text-[0.8rem] text-nowrap text-gray-400">
 								{work.date?.split('-')[0]} • {work.size} cm
@@ -115,9 +109,11 @@
 							<h2 class="text-l font-semibold text-gray-800">
 								<Lang text={work.title} />
 							</h2>
-							<p class="text-[0.8rem] text-pretty text-gray-500 italic">
-								<Lang text={work.medium.name} />
-							</p>
+							{#if work.medium}
+								<p class="text-[0.8rem] text-pretty text-gray-500 italic">
+									<Lang text={work.medium.name} />
+								</p>
+							{/if}
 							<p class="text-[0.7rem] text-gray-400">
 								{work.date?.split('-')[0]} • {work.size} cm
 							</p>

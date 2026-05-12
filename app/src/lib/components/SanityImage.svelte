@@ -5,6 +5,7 @@
 	import { urlFor } from '$lib/sanity/client';
 	import type { WorksQueryResult } from '../../sanity.types';
 	import type { ClassValue } from 'svelte/elements';
+	import { onMount } from 'svelte';
 
 	type SanityImageWithMetadata = WorksQueryResult[number]['image'];
 
@@ -36,10 +37,16 @@
 	let blurHashCanvas = $state<HTMLCanvasElement | undefined>(undefined);
 	let imageRef: HTMLImageElement;
 
-	let dimensions = $derived(image.asset.metadata.dimensions);
+	let dimensions = $derived({
+		width: 0,
+		height: 0,
+		aspectRatio: 0,
+		...image?.asset?.metadata?.dimensions
+	});
 
 	// Create URL builder with hotspot support
 	function createImageUrl(w: number, h?: number) {
+		if (!image) return '';
 		let builder = urlFor(image).width(w).auto('format').fit(fit).quality(quality);
 		if (h) {
 			builder = builder.height(h);
@@ -48,8 +55,8 @@
 	}
 
 	function renderBlurHash() {
-		const blurHash = image.asset.metadata.blurHash;
-		if (imageRef.complete || !blurHash || !blurHashCanvas) return;
+		const blurHash = image?.asset?.metadata?.blurHash;
+		if (!blurHash || !blurHashCanvas) return;
 
 		const canvas = blurHashCanvas;
 		const ctx = canvas.getContext('2d');
@@ -72,37 +79,42 @@
 		imageLoaded = true;
 	}
 
-	$effect(() => {
-		if (blurHashCanvas) {
+	onMount(() => {
+		if (blurHashCanvas && !imageLoaded) {
 			renderBlurHash();
 		}
 	});
+
+	$inspect(imageLoaded, imageLoaded ? alt : '');
+
+	const shouldRenderBlurHash = $derived(!imageLoaded);
 </script>
 
-<div
-	class={['relative block w-fit max-w-full', className]}
-	style:view-transition-name={viewTransitionName}
->
-	<img
-		width="{width}px"
-		height="{width / dimensions.aspectRatio}px"
-		//{alt}
-		class={['block h-auto max-w-full', imageClass]}
-		loading="lazy"
-		bind:this={imageRef}
-		src={createImageUrl(width, height)}
-		{onload}
-	/>
-	<!-- {#if !imageLoaded}
-		<canvas
-			out:fade={{ duration: displayBlurHash ? 500 : 0 }}
-			bind:this={blurHashCanvas}
-			width="32"
-			height="32"
-			style:aspect-ratio={dimensions.aspectRatio}
-			style:width={dimensions.aspectRatio > 1 ? '100%' : 'auto'}
-			style:height={dimensions.aspectRatio > 1 ? 'auto' : '100%'}
-			class="absolute inset-0 object-cover"
-		></canvas>
-	{/if} -->
+<div class={['relative flex w-fit max-w-full items-center justify-center', className]}>
+	<div class="h-fit w-fit" style:view-transition-name={viewTransitionName}>
+		<img
+			width="{width}px"
+			height="{width / dimensions.aspectRatio}px"
+			{alt}
+			class={['w-full', imageClass]}
+			loading="lazy"
+			bind:this={imageRef}
+			src={createImageUrl(width, height)}
+			{onload}
+		/>
+		{#if shouldRenderBlurHash}
+			<canvas
+				// out:fade={{ duration: displayBlurHash ? 500 : 0 }}
+				bind:this={blurHashCanvas}
+				width="32"
+				height="32"
+				style:aspect-ratio={dimensions.aspectRatio}
+				style:width="auto"
+				style:height="100%"
+				// style:width={dimensions.aspectRatio > 1 ? '100%' : 'auto'}
+				// style:height={dimensions.aspectRatio > 1 ? 'auto' : '100%'}
+				class="absolute inset-0 bg-red-500 object-cover"
+			></canvas>
+		{/if}
+	</div>
 </div>
