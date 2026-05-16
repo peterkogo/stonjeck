@@ -6,9 +6,6 @@ const config = {
 	preprocess: vitePreprocess(),
 	kit: {
 		adapter: adapter(),
-		experimental: {
-			remoteFunctions: true
-		},
 		alias: {
 			'@/*': './lib/*'
 		}
@@ -16,11 +13,6 @@ const config = {
 		// output: {
 		// 	bundleStrategy: 'single'
 		// }
-	},
-	compilerOptions: {
-		experimental: {
-			async: true
-		}
 	}
 };
 

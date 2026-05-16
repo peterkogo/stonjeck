@@ -5,9 +5,9 @@
 	import SanityImage from '$lib/components/SanityImage.svelte';
 	import Lang from '$lib/components/Lang.svelte';
 	import { pick } from '$lib/lang';
-	import { getWorks } from '$lib/data.remote';
 
-	const works = await getWorks();
+	let { data } = $props();
+	let works = $derived(data.works);
 
 	let scrollContainer: HTMLDivElement | undefined = $state();
 	let currentIndex = $state(0);

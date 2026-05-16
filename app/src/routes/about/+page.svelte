@@ -2,14 +2,13 @@
 	import { fade } from 'svelte/transition';
 	import { quadInOut as easing } from 'svelte/easing';
 
-	import { getInformation } from '$lib/data.remote';
-
 	import SanityImage from '$lib/components/SanityImage.svelte';
 	import Lang from '$lib/components/Lang.svelte';
 	import KarimStonjeck from '$lib/components/KarimStonjeck.svelte';
 	import { multilang } from '$lib/lang';
 
-	const information = await getInformation();
+	let { data } = $props();
+	let information = $derived(data.information);
 
 	const biography = $derived(
 		information.biography?.map((entry) => ({

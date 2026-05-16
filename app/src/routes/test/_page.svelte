@@ -1,19 +1,27 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import SanityImage from '$lib/components/SanityImage.svelte';
 	import Lang from '$lib/components/Lang.svelte';
 	import { pick } from '$lib/lang';
-	import { getSeries } from '$lib/data.remote';
 
-	const series = await getSeries(page.params.series ?? '');
+	let { data } = $props();
+	let series = $derived(data.series);
 
 	let scrollContainer: HTMLDivElement | undefined = $state();
 	let currentIndex = $state(0);
 
+	function captureScrollContainer(node: HTMLDivElement) {
+		scrollContainer = node;
+		return {
+			destroy() {
+				if (scrollContainer === node) scrollContainer = undefined;
+			}
+		};
+	}
+
 	function scrollToIndex(index: number) {
 		if (!scrollContainer || !series.works) return;
 
-		const totalWorks = series.works.filter((work) => work?.image).length;
+		const totalWorks = series.works.filter((work: { image?: unknown }) => work?.image).length;
 		const clampedIndex = Math.max(0, Math.min(index, totalWorks - 1));
 
 		const scrollTop = clampedIndex * window.innerHeight;
@@ -55,7 +63,7 @@
 <svelte:window on:keydown={handleKeydown} />
 
 <div
-	bind:this={scrollContainer}
+	use:captureScrollContainer
 	onscroll={updateCurrentIndex}
 	class="h-screen snap-y snap-mandatory overflow-y-scroll scroll-smooth"
 >

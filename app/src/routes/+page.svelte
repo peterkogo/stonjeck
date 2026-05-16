@@ -1,8 +1,8 @@
 <script lang="ts">
 	import WorksGrid from '$lib/works/WorksGrid.svelte';
-	import { getWorks } from '$lib/data.remote';
 
-	const works = await getWorks();
+	let { data } = $props();
+	let works = $derived(data.works);
 </script>
 
 <svelte:head>

@@ -85,9 +85,7 @@
 		}
 	});
 
-	$inspect(imageLoaded, imageLoaded ? alt : '');
-
-	const shouldRenderBlurHash = $derived(!imageLoaded);
+	// $inspect(imageLoaded, imageLoaded ? alt : '');
 </script>
 
 <div class={['relative flex w-fit max-w-full items-center justify-center', className]}>
@@ -102,9 +100,9 @@
 			src={createImageUrl(width, height)}
 			{onload}
 		/>
-		{#if shouldRenderBlurHash}
+		{#if !imageLoaded}
 			<canvas
-				// out:fade={{ duration: displayBlurHash ? 500 : 0 }}
+				out:fade={{ duration: displayBlurHash ? 500 : 0 }}
 				bind:this={blurHashCanvas}
 				width="32"
 				height="32"
@@ -113,7 +111,7 @@
 				style:height="100%"
 				// style:width={dimensions.aspectRatio > 1 ? '100%' : 'auto'}
 				// style:height={dimensions.aspectRatio > 1 ? 'auto' : '100%'}
-				class="absolute inset-0 bg-red-500 object-cover"
+				class="absolute inset-0 object-cover"
 			></canvas>
 		{/if}
 	</div>

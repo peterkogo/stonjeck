@@ -1,5 +1,7 @@
 packages:
   - "app/"
   - "studio/"
+allowBuilds:
+  esbuild: true
 onlyBuiltDependencies:
   - esbuild
