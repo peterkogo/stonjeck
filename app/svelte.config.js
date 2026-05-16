@@ -8,6 +8,9 @@ const config = {
 		adapter: adapter(),
 		experimental: {
 			remoteFunctions: true
+		},
+		alias: {
+			'@/*': './lib/*'
 		}
 		// TODO: possible optimization for fewer requests
 		// output: {

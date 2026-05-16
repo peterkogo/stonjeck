@@ -7,6 +7,7 @@
 	import SanityImage from '$lib/components/SanityImage.svelte';
 	import Lang from '$lib/components/Lang.svelte';
 	import KarimStonjeck from '$lib/components/KarimStonjeck.svelte';
+	import { multilang } from '$lib/lang';
 
 	const information = await getInformation();
 
@@ -18,10 +19,12 @@
 	);
 </script>
 
-<div class="flex h-screen w-full items-center justify-center p-15">
-	<div class="flex w-full items-center max-sm:flex-col sm:justify-center">
+<div
+	class="text-brown flex h-screen w-full flex-col items-center justify-center pt-15 sm:p-15"
+>
+	<div class="flex w-full items-center justify-center max-sm:flex-col">
 		<div
-			class="relative w-58 pt-5 max-sm:mb-10 max-sm:w-68"
+			class="relative w-58 pt-5 max-sm:my-10 max-sm:w-68"
 			in:fade={{ delay: 200, easing, duration: 350 }}
 		>
 			{#if information.titleImage?.image}
@@ -31,11 +34,14 @@
 				/>
 			{/if}
 		</div>
-		<div class="max-w-84 px-8">
+		<div class="flex w-86 flex-col px-8 max-sm:w-68 max-sm:items-center max-sm:p-4">
 			<div class="mb-3 max-w-48 max-sm:max-w-68"><KarimStonjeck class="text-brown" /></div>
-			<div class="text-brown text-[0.9rem] leading-relaxed" in:fade={{ delay: 350, easing }}>
+			<div class=" text-[0.8rem] leading-relaxed" in:fade={{ delay: 350, easing }}>
 				<Lang text={biography} html />
 			</div>
 		</div>
+	</div>
+	<div class="mt-10 flex w-full max-w-142 max-sm:max-w-62">
+		<h2 class="text-2xl"><Lang text={multilang('Ausstellungen', 'Exhibitions')} /></h2>
 	</div>
 </div>
