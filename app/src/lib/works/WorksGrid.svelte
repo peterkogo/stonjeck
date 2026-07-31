@@ -33,11 +33,37 @@
 	});
 
 	let transitionWorkId = $state<string | undefined>();
+
+	const menuSize = { width: 120, height: 60 };
 </script>
 
 <!-- <svelte:window onpointerup={cleanTransitionWorkId} onpointercancel={cleanTransitionWorkId} /> -->
 
 <div class="w-full overflow-x-hidden p-5 lg:p-8">
+	<div
+		class="pointer-events-none fixed top-0 z-10 grid w-[calc(100%-var(--spacing)*7)] overflow-visible [--frame-width:160px] md:[--frame-width:360px] lg:w-[calc(100%-var(--spacing)*12)]"
+		style:--gap="15px"
+		style:--precision={100}
+		style:margin="calc(-1 * var(--gap, 0) / 2)"
+		style:grid-template-columns="repeat(auto-fill, minmax(var(--frame-width), 1fr))"
+	>
+		<div
+			class="bg-background pt-5 lg:pt-8"
+			style:--width={menuSize.width}
+			style:--height={menuSize.height}
+			style:aspect-ratio={menuSize.width / menuSize.height}
+			style:width="100%"
+			style:height="100%"
+			style:position="relative"
+			style:grid-row="span calc(var(--height) / var(--width) * var(--precision))"
+		>
+			<div style:padding="calc(var(--gap, 0) / 2)" class="pointer-events-auto">
+				<a href={resolve((localizeHref('/about') as '/about') || '/en/about')}>
+					<KarimStonjeck class="text-brown" />
+				</a>
+			</div>
+		</div>
+	</div>
 	<div
 		class="grid overflow-visible [--frame-width:160px] md:[--frame-width:360px]"
 		style:--gap="15px"
@@ -45,21 +71,6 @@
 		style:margin="calc(-1 * var(--gap, 0) / 2)"
 		style:grid-template-columns="repeat(auto-fill, minmax(var(--frame-width), 1fr))"
 	>
-		<div
-			style:--width={100}
-			style:--height={20}
-			style:aspect-ratio={100 / 20}
-			style:width="100%"
-			style:height="100%"
-			style:position="relative"
-			style:grid-row="span calc(var(--height) / var(--width) * var(--precision))"
-		>
-			<div style:padding="calc(var(--gap, 0) / 2)">
-				<a href={resolve((localizeHref('/bio') as '/bio') || '/en/bio')}>
-					<KarimStonjeck class="text-brown" underline />
-				</a>
-			</div>
-		</div>
 		{#each filteredWorks as work (work._id)}
 			{@const dimensions = work.image?.asset?.metadata?.dimensions ?? {
 				width: 0,
@@ -88,7 +99,7 @@
 							onpointerdown={() => {
 								transitionWorkId = work._id;
 							}}
-							href={resolve(localizeHref(`/works#${slug}`) as `/works#${string}`)}
+							href={resolve(localizeHref(`/works/${slug}`) as `/works/${string}`)}
 						>
 							<SanityImage
 								image={work.image}

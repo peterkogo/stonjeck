@@ -4,6 +4,7 @@
 	// import { getLocale, setLocale } from '$lib/paraglide/runtime';
 
 	import '../app.css';
+	import NavBar from '$lib/components/NavBar.svelte';
 
 	let { children }: { children: Snippet } = $props();
 
@@ -23,8 +24,8 @@
 	// }
 </script>
 
+<!-- <NavBar /> -->
 {@render children()}
-
 <!-- <button
 	type="button"
 	class="absolute top-0 left-0 cursor-pointer text-left"
