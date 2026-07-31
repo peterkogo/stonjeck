@@ -4,7 +4,11 @@
 	import { page } from '$app/state';
 	import type { SeriesListQueryResult } from '../../sanity.types';
 	import Lang from '../components/Lang.svelte';
-	import { filterTagsState, parseFilterQuery, stringifyFilterQuery } from './filter-tags.svelte';
+	import {
+		filterTagsState,
+		parseFilterQuery,
+		stringifyFilterQuery
+	} from './filter-tags.svelte';
 
 	let { seriesList }: { seriesList: SeriesListQueryResult } = $props();
 
