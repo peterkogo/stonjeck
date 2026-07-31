@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import { replaceState } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -19,7 +20,9 @@
 		return index >= 0 ? index : 0;
 	}
 
+	let scrolling = $state(false);
 	let currentIndex = $state(indexFromHash());
+	let targetIndex = $state(untrack(() => currentIndex));
 
 	const currentWork = $derived(works[currentIndex]);
 	const pageTitle = $derived(
@@ -28,6 +31,11 @@
 
 	$effect(() => {
 		updateUrl(currentIndex);
+	});
+
+	$effect(() => {
+		// We need to keep this in an effect not derived
+		if (!scrolling) targetIndex = currentIndex;
 	});
 
 	function updateUrl(index: number) {
@@ -55,18 +63,19 @@
 			behavior
 		});
 
-		currentIndex = clampedIndex;
+		scrolling = true;
+		targetIndex = clampedIndex;
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
 		switch (event.key) {
 			case 'ArrowDown':
 				event.preventDefault();
-				scrollToIndex(currentIndex + 1);
+				scrollToIndex(targetIndex + 1);
 				break;
 			case 'ArrowUp':
 				event.preventDefault();
-				scrollToIndex(currentIndex - 1);
+				scrollToIndex(targetIndex - 1);
 				break;
 		}
 	}
@@ -85,7 +94,13 @@
 	<meta name="description" content="Artwork: {pageTitle}" />
 </svelte:head>
 
-<svelte:window onkeydown={handleKeydown} onscroll={updateCurrentIndex} />
+<svelte:window
+	onkeydown={handleKeydown}
+	onscroll={updateCurrentIndex}
+	onscrollend={() => {
+		scrolling = false;
+	}}
+/>
 
 <div bind:this={wrapper}>
 	{#each works as work, index (work._id)}
@@ -107,7 +122,6 @@
 							alt={pick(work.title, 'en') || pick(work.title, 'de')}
 							viewTransitionName="work-{work._id}"
 							width={1600}
-							// loading={eager ? 'eager' : 'lazy'}
 						/>
 						<div class="text-l mt-2 w-full text-center align-middle lg:hidden">
 							<span class="text-l font-semibold text-gray-800">
