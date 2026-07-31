@@ -18,7 +18,7 @@
 	</div>
 {/snippet}
 
-<header
+<!-- <header
 	class="text-background stonjeck pointer-events-none fixed left-2 z-10 flex h-full w-full items-center rounded-2xl text-2xl font-light"
 >
 	<div
@@ -37,7 +37,7 @@
 			{/if}
 		{/each}
 	</div>
-</header>
+</header> -->
 
 <style>
 	:global(:root):active-view-transition .navbar {

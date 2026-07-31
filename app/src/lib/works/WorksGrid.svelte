@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
 	import type { WorksQueryResult } from '../../sanity.types';
@@ -9,7 +8,6 @@
 	import { pick } from '$lib/lang';
 
 	import SanityImage from '$lib/components/SanityImage.svelte';
-	import KarimStonjeck from '$lib/components/KarimStonjeck.svelte';
 
 	let { works }: { works: WorksQueryResult } = $props();
 
@@ -33,14 +31,12 @@
 	});
 
 	let transitionWorkId = $state<string | undefined>();
-
-	const menuSize = { width: 120, height: 60 };
 </script>
 
 <!-- <svelte:window onpointerup={cleanTransitionWorkId} onpointercancel={cleanTransitionWorkId} /> -->
 
 <div class="w-full overflow-x-hidden p-5 lg:p-8">
-	<div
+	<!-- <div
 		class="pointer-events-none fixed top-0 z-10 grid w-[calc(100%-var(--spacing)*7)] overflow-visible [--frame-width:160px] md:[--frame-width:360px] lg:w-[calc(100%-var(--spacing)*12)]"
 		style:--gap="15px"
 		style:--precision={100}
@@ -63,7 +59,7 @@
 				</a>
 			</div>
 		</div>
-	</div>
+	</div> -->
 	<div
 		class="grid overflow-visible [--frame-width:160px] md:[--frame-width:360px]"
 		style:--gap="15px"
@@ -99,7 +95,7 @@
 							onpointerdown={() => {
 								transitionWorkId = work._id;
 							}}
-							href={resolve(localizeHref(`/works/${slug}`) as `/works/${string}`)}
+							href={`${localizeHref('/works')}#${slug}`}
 						>
 							<SanityImage
 								image={work.image}

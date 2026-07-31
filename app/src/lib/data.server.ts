@@ -1,7 +1,17 @@
+import { building } from '$app/environment';
 import { error } from '@sveltejs/kit';
 import { defineQuery } from 'groq';
 
 import { sanityClient } from '$lib/sanity/client';
+
+/** Shared across prerendered pages so Sanity is hit once per build. */
+function once<T>(fn: () => Promise<T>): () => Promise<T> {
+	let promise: Promise<T> | undefined;
+	return () => {
+		if (!building) return fn();
+		return (promise ??= fn());
+	};
+}
 
 const seriesListQuery = defineQuery(`
 	*[_type == "series"] | order(order desc) {
@@ -97,9 +107,9 @@ const informationQuery = defineQuery(`
 	}
 `);
 
-export async function getSeriesList() {
+export const getSeriesList = once(async () => {
 	return await sanityClient.fetch(seriesListQuery);
-}
+});
 
 export async function getSeries(slug: string) {
 	const series = await sanityClient.fetch(seriesBySlugQuery, { slug });
@@ -107,12 +117,12 @@ export async function getSeries(slug: string) {
 	return series;
 }
 
-export async function getWorks() {
+export const getWorks = once(async () => {
 	return await sanityClient.fetch(worksQuery);
-}
+});
 
-export async function getInformation() {
+export const getInformation = once(async () => {
 	const information = await sanityClient.fetch(informationQuery);
 	if (!information) error(404, 'Information not found');
 	return information;
-}
+});
