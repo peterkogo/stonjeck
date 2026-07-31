@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Separator } from './ui/separator';
-	import { PersonSimpleIcon, CalendarDotsIcon, FunnelIcon } from 'phosphor-svelte';
 
 	const items = [
 		{ label: 'about', icon: PersonSimpleIcon },

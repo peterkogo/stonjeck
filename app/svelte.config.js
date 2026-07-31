@@ -8,11 +8,14 @@ const config = {
 		adapter: adapter(),
 		alias: {
 			'@/*': './lib/*'
-		}
+		},
 		// TODO: possible optimization for fewer requests
-		// output: {
-		// 	bundleStrategy: 'single'
-		// }
+		output: {
+			bundleStrategy: 'single'
+		},
+		paths: {
+			relative: false
+		}
 	}
 };
 
