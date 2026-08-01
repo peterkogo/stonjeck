@@ -6,6 +6,7 @@
 	import Lang from '$lib/components/Lang.svelte';
 	import { pick } from '$lib/lang';
 	import SanityImagesScroll from '$lib/components/SanityImagesScroll.svelte';
+	import { browser } from '$app/env';
 
 	let { data } = $props();
 	let works = $derived(data.works);
@@ -38,6 +39,13 @@
 		if (!scrolling) targetIndex = currentIndex;
 	});
 
+	function updateLastWork(slug: string | undefined) {
+		if (!slug || !browser) return;
+		localStorage.setItem('last-work', slug);
+	}
+
+	updateLastWork(untrack(() => currentWork?.slug?.current));
+
 	function updateUrl(index: number) {
 		const slug = works[index]?.slug?.current;
 		if (!slug) return;
@@ -48,6 +56,7 @@
 		const href = `${page.url.pathname}${page.url.search}${nextHash}`;
 		// @ts-expect-error href can include search+hash; generated RouteId omits this combination
 		replaceState(resolve(href), page.state);
+		updateLastWork(slug);
 	}
 
 	function scrollToIndex(index: number, behavior: ScrollBehavior = 'smooth') {

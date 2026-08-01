@@ -8,6 +8,8 @@
 	import { pick } from '$lib/lang';
 
 	import SanityImage from '$lib/components/SanityImage.svelte';
+	import { browser } from '$app/env';
+	import { afterNavigate, disableScrollHandling } from '$app/navigation';
 
 	let { works }: { works: WorksQueryResult } = $props();
 
@@ -30,7 +32,29 @@
 		});
 	});
 
-	let transitionWorkId = $state<string | undefined>();
+	function initialTransitionWorkId(): string | undefined {
+		if (browser) {
+			const lastWork = localStorage.getItem('last-work');
+			if (!lastWork) return undefined;
+			localStorage.removeItem('last-work');
+			return works.find((work) => work.slug?.current === lastWork)?._id;
+		}
+		return undefined;
+	}
+
+	let transitionWorkId = $state<string | undefined>(initialTransitionWorkId());
+
+	afterNavigate(() => {
+		if (!transitionWorkId) return;
+
+		const slug = works.find((work) => work._id === transitionWorkId)?.slug?.current;
+		if (!slug) return;
+
+		document.getElementById(slug)?.scrollIntoView({
+			block: 'center',
+			behavior: 'instant'
+		});
+	});
 </script>
 
 <!-- <svelte:window onpointerup={cleanTransitionWorkId} onpointercancel={cleanTransitionWorkId} /> -->
@@ -92,6 +116,7 @@
 				>
 					{#if slug}
 						<a
+							id={slug}
 							onpointerdown={() => {
 								transitionWorkId = work._id;
 							}}
