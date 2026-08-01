@@ -5,8 +5,8 @@
 	import { page } from '$app/state';
 	import Lang from '$lib/components/Lang.svelte';
 	import { pick } from '$lib/lang';
-	import SanityImagesScroll from '$lib/components/SanityImagesScroll.svelte';
 	import { browser } from '$app/env';
+	import SanityImage from '$lib/components/SanityImage.svelte';
 
 	let { data } = $props();
 	let works = $derived(data.works);
@@ -113,6 +113,7 @@
 
 <div bind:this={wrapper}>
 	{#each works as work, index (work._id)}
+		{@const aspectRatio = work.image?.asset?.metadata?.dimensions?.aspectRatio ?? 1}
 		<section
 			id={work.slug?.current}
 			class="relative flex h-dvh snap-start snap-always lg:p-16"
@@ -126,11 +127,14 @@
 					<div
 						class="flex min-h-0 min-w-0 flex-1 flex-col items-center justify-center self-stretch lg:h-full lg:w-full lg:max-w-full lg:flex-none"
 					>
-						<SanityImagesScroll
+						<SanityImage
 							image={work.image}
 							alt={pick(work.title, 'en') || pick(work.title, 'de')}
-							viewTransitionName="work-{work._id}"
-							width={1600}
+							viewTransitionName={currentWork === work ? `work-${work._id}` : undefined}
+							imageWidth={1600}
+							width="min(100cqw, calc(100cqh * {aspectRatio}))"
+							height="min(100cqh, calc(100cqw / {aspectRatio}))"
+							containerHeight="calc(100dvh - var(--spacing) * 32)"
 						/>
 						<div class="text-l mt-2 w-full text-center align-middle lg:hidden">
 							<span class="text-l font-semibold text-gray-800">

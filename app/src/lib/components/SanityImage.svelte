@@ -4,50 +4,39 @@
 
 	import { urlFor } from '$lib/sanity/client';
 	import type { WorksQueryResult } from '../../sanity.types';
-	import type { ClassValue } from 'svelte/elements';
 	import { onMount } from 'svelte';
 
 	type SanityImageWithMetadata = WorksQueryResult[number]['image'];
 
 	let {
 		image,
-		alt,
-		class: className,
-		imageClass,
-		width = 1000,
+		imageWidth = 1000,
+		containerHeight,
+		width,
 		height,
-		fit = 'max',
+		alt,
 		quality = 50,
-		displayBlurHash = true,
 		viewTransitionName
 	}: {
 		image: SanityImageWithMetadata;
+		containerHeight?: string;
+		imageWidth?: number;
+		width?: string;
+		height?: string;
 		alt: string;
-		class?: ClassValue;
-		imageClass?: ClassValue;
-		width?: number;
-		height?: number;
-		fit?: 'clip' | 'crop' | 'fill' | 'fillmax' | 'max' | 'min' | 'scale';
 		quality?: number;
-		displayBlurHash?: boolean;
 		viewTransitionName?: string;
 	} = $props();
 
-	let imageLoaded = $state(false);
+	let mounted = $state(false);
+	let onLoadFired = $state(false);
 	let blurHashCanvas = $state<HTMLCanvasElement | undefined>(undefined);
 	let imageRef: HTMLImageElement;
-
-	let dimensions = $derived({
-		width: 0,
-		height: 0,
-		aspectRatio: 0,
-		...image?.asset?.metadata?.dimensions
-	});
 
 	// Create URL builder with hotspot support
 	function createImageUrl(w: number, h?: number) {
 		if (!image) return '';
-		let builder = urlFor(image).width(w).auto('format').fit(fit).quality(quality);
+		let builder = urlFor(image).width(w).auto('format').fit('max').quality(quality);
 		if (h) {
 			builder = builder.height(h);
 		}
@@ -76,19 +65,63 @@
 	}
 
 	function onload() {
-		imageLoaded = true;
+		onLoadFired = true;
 	}
 
 	onMount(() => {
-		if (blurHashCanvas && !imageLoaded) {
+		// if (image?.asset?._id === 'image-732008a9a1d10c0b5d8a90ef0260d32f0607940c-2755x3458-jpg') {
+		// 	console.log(imageRef?.complete);
+		// }
+		if (blurHashCanvas && !imageRef?.complete) {
 			renderBlurHash();
+			mounted = true;
 		}
 	});
 
-	// $inspect(imageLoaded, imageLoaded ? alt : '');
+	// $effect(() => {
+	// 	if (image?.asset?._id === 'image-732008a9a1d10c0b5d8a90ef0260d32f0607940c-2755x3458-jpg') {
+	// 		// console.log({ onLoadFired, imageRef: !imageRef?.complete, mounted });
+	// 		// console.log({
+	// 		// 	shouldRenderBlurHash:
+	// 		// 		(!onLoadFired && !imageRef?.complete) || (mounted && !onLoadFired)
+	// 		// });
+	// 	}
+	// });
 </script>
 
-<div class="outer-div relative flex h-full w-full items-center justify-center">
+<div
+	class="@container-size relative flex h-full w-full items-center justify-center"
+	style:height={containerHeight}
+>
+	<div
+		style:view-transition-name={viewTransitionName}
+		style:width
+		style:height
+		class="relative h-full w-full"
+	>
+		<img
+			{alt}
+			style:width
+			style:height
+			class="absolute inset-0 m-auto"
+			bind:this={imageRef}
+			loading="lazy"
+			src={createImageUrl(imageWidth)}
+			{onload}
+		/>
+		{#if (!onLoadFired && !imageRef?.complete) || (mounted && !onLoadFired)}
+			<canvas
+				out:fade={{ duration: 500 }}
+				bind:this={blurHashCanvas}
+				width="32"
+				height="32"
+				class="absolute inset-0 size-full object-cover"
+			></canvas>
+		{/if}
+	</div>
+</div>
+
+<!-- <div class="outer-div relative flex h-full w-full items-center justify-center">
 	<div class="inner-div size-full" style:view-transition-name={viewTransitionName}>
 		<img
 			width="{width}px"
@@ -100,10 +133,10 @@
 			src={createImageUrl(width, height)}
 			{onload}
 		/>
-		{#if !imageLoaded}
+		{#if (!onLoadFired && !imageRef?.complete) || (mounted && !onLoadFired)}
 			<canvas
 				class="absolute inset-0 size-full object-cover"
-				out:fade={{ duration: displayBlurHash ? 500 : 0 }}
+				out:fade={{ duration: displayBlurHash ? 2000 : 0 }}
 				bind:this={blurHashCanvas}
 				width="32"
 				height="32"
@@ -112,7 +145,7 @@
 			></canvas>
 		{/if}
 	</div>
-</div>
+</div> -->
 
 <!-- <div class={['relative flex w-fit max-w-full items-center justify-center', className]}>
 	<div

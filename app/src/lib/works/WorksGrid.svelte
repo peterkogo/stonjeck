@@ -9,7 +9,7 @@
 
 	import SanityImage from '$lib/components/SanityImage.svelte';
 	import { browser } from '$app/env';
-	import { afterNavigate, disableScrollHandling } from '$app/navigation';
+	import { afterNavigate } from '$app/navigation';
 
 	let { works }: { works: WorksQueryResult } = $props();
 
@@ -125,13 +125,11 @@
 							<SanityImage
 								image={work.image}
 								alt={pick(work.title, 'en') || pick(work.title, 'de') || 'Untitled'}
-								width={1000}
+								imageWidth={1000}
 								quality={55}
-								fit="crop"
 								viewTransitionName={transitionWorkId === work._id
 									? `work-${work._id}`
 									: undefined}
-								displayBlurHash={true}
 							/>
 						</a>
 					{/if}
