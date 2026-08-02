@@ -13,16 +13,12 @@
 
 	let { works }: { works: WorksQueryResult } = $props();
 
-	type WorkWithSeries = WorksQueryResult[number] & {
-		series?: Array<{ slug: { current: string } | null } | null> | null;
-	};
-
 	const filteredWorks = $derived.by(() => {
 		if (filterTagsState.selected.length === 0) return works;
 
 		const selectedFilters = new Set(filterTagsState.selected);
 
-		return (works as WorkWithSeries[]).filter((work) => {
+		return works.filter((work) => {
 			if (!work.series || work.series.length === 0) return false;
 
 			return work.series.some((series) => {

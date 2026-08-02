@@ -7,9 +7,9 @@
 	import { pick } from '$lib/lang';
 	import { browser } from '$app/env';
 	import SanityImage from '$lib/components/SanityImage.svelte';
+	import { getWorks } from '$lib/data.remote';
 
-	let { data } = $props();
-	let works = $derived(data.works);
+	const works = await getWorks();
 
 	let wrapper: HTMLDivElement | undefined = $state();
 
@@ -17,7 +17,7 @@
 		const hash = page.url.hash.slice(1);
 		if (!hash) return 0;
 
-		const index = data.works.findIndex((work) => work.slug?.current === hash);
+		const index = works.findIndex((work) => work.slug?.current === hash);
 		return index >= 0 ? index : 0;
 	}
 

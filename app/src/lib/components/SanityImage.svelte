@@ -3,10 +3,25 @@
 	import { decode } from 'blurhash';
 
 	import { urlFor } from '$lib/sanity/client';
-	import type { WorksQueryResult } from '../../sanity.types';
+	import type { SanityImageCrop, SanityImageHotspot } from '../../sanity.types';
 	import { onMount } from 'svelte';
 
-	type SanityImageWithMetadata = WorksQueryResult[number]['image'];
+	/** Minimal image shape shared by works / information queries. */
+	type SanityImageWithMetadata = {
+		hotspot?: SanityImageHotspot | null;
+		crop?: SanityImageCrop | null;
+		asset?: {
+			_id: string;
+			metadata?: {
+				blurHash?: string | null;
+				dimensions?: {
+					width?: number | null;
+					height?: number | null;
+					aspectRatio?: number | null;
+				} | null;
+			} | null;
+		} | null;
+	} | null;
 
 	let {
 		image,

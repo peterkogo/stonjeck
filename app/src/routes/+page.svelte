@@ -1,8 +1,6 @@
 <script lang="ts">
 	import WorksGrid from '$lib/works/WorksGrid.svelte';
-
-	let { data } = $props();
-	let works = $derived(data.works);
+	import { getWorks } from '$lib/data.remote';
 </script>
 
 <svelte:head>
@@ -10,4 +8,4 @@
 	<meta name="description" content="Discover the artwork collection of Karim Stonjeck" />
 </svelte:head>
 
-<WorksGrid {works} />
+<WorksGrid works={await getWorks()} />

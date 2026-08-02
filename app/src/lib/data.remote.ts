@@ -24,19 +24,23 @@ const seriesBySlugQuery = defineQuery(`
 			slug,
 			title,
 			image {
-				...,
+				hotspot,
+				crop,
 				asset->{
-					...,
-					metadata{
+					_id,
+					metadata {
 						blurHash,
-						dimensions
+						dimensions {
+							width,
+							height,
+							aspectRatio
+						}
 					}
 				}
 			},
 			date,
 			size,
 			medium-> {
-				_id,
 				name
 			}
 		}
@@ -49,29 +53,26 @@ const worksQuery = defineQuery(`
 		slug,
 		title,
 		image {
-			...,
+			hotspot,
+			crop,
 			asset->{
-				...,
-				metadata{
+				_id,
+				metadata {
 					blurHash,
-					dimensions
+					dimensions {
+						width,
+						height,
+						aspectRatio
+					}
 				}
 			}
 		},
 		date,
 		size,
-		tags[]-> {
-			_id,
-			name,
+		"series": *[_type == "series" && references(^._id)] {
 			slug
 		},
-		"series": *[_type == "series" && references(^._id)] {
-			_id,
-			slug,
-			title
-		},
 		medium-> {
-			_id,
 			name
 		}
 	}

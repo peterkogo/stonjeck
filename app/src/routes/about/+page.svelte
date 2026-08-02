@@ -6,9 +6,9 @@
 	import Lang from '$lib/components/Lang.svelte';
 	import KarimStonjeck from '$lib/components/KarimStonjeck.svelte';
 	import { multilang } from '$lib/lang';
+	import { getInformation } from '$lib/data.remote';
 
-	let { data } = $props();
-	let information = $derived(data.information);
+	const information = await getInformation();
 
 	const biography = $derived(
 		information.biography?.map((entry) => ({
