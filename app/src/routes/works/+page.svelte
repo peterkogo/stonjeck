@@ -21,8 +21,8 @@
 		return index >= 0 ? index : 0;
 	}
 
-	let scrolling = $state(false);
 	let currentIndex = $state(indexFromHash());
+	// eslint-disable-next-line svelte/prefer-writable-derived
 	let targetIndex = $state(untrack(() => currentIndex));
 
 	const currentWork = $derived(works[currentIndex]);
@@ -36,7 +36,7 @@
 
 	$effect(() => {
 		// We need to keep this in an effect not derived
-		if (!scrolling) targetIndex = currentIndex;
+		targetIndex = currentIndex;
 	});
 
 	function updateLastWork(slug: string | undefined) {
@@ -72,7 +72,6 @@
 			behavior
 		});
 
-		scrolling = true;
 		targetIndex = clampedIndex;
 	}
 
@@ -103,13 +102,7 @@
 	<meta name="description" content="Artwork: {pageTitle}" />
 </svelte:head>
 
-<svelte:window
-	onkeydown={handleKeydown}
-	onscroll={updateCurrentIndex}
-	onscrollend={() => {
-		scrolling = false;
-	}}
-/>
+<svelte:window onkeydown={handleKeydown} onscroll={updateCurrentIndex} />
 
 <div bind:this={wrapper}>
 	{#each works as work, index (work._id)}
