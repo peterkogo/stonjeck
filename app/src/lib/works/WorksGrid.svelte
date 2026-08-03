@@ -116,7 +116,7 @@
 							onpointerdown={() => {
 								transitionWorkId = work._id;
 							}}
-							href={`${localizeHref('/works')}#${slug}`}
+							href={localizeHref(`/works/${slug}`)}
 						>
 							<SanityImage
 								image={work.image}
