@@ -5,6 +5,7 @@
 
 	import '../app.css';
 	import NavBar from '$lib/components/NavBar.svelte';
+	import { setActiveViewTransition } from '$lib/view-transition';
 
 	let { children }: { children: Snippet } = $props();
 
@@ -12,10 +13,12 @@
 		if (!document.startViewTransition) return;
 
 		return new Promise((resolve) => {
-			document.startViewTransition(async () => {
+			const transition = document.startViewTransition(async () => {
 				resolve();
 				await navigation.complete;
 			});
+			setActiveViewTransition(transition);
+			transition.finished.finally(() => setActiveViewTransition(null));
 		});
 	});
 

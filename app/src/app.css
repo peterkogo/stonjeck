@@ -132,15 +132,28 @@
 	}
 }
 
-/* Shared-element morph: keep the old snapshot visible (no crossfade-out) so a
-   still-loading destination doesn't flash empty while the group resizes. */
-::view-transition-old(*):not(:only-child) {
-	z-index: 1;
-	animation: none;
+/* Shared-element morph only — scoped via view-transition-class so `root` keeps
+   the UA cross-fade. (`*` + :not(:only-child) is more specific than `(root)` and
+   was silencing the page fade in Safari/Firefox, leaving only the named element
+   animating and the rest popping in when the transition ended.) */
+::view-transition-group(*) {
+	animation-duration: 0.4s;
+	animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-::view-transition-new(*):not(:only-child) {
-	animation: vt-fade-in 0.35s ease;
+::view-transition-old(.work):not(:only-child) {
+	z-index: 1;
+	animation: none;
+	mix-blend-mode: normal;
+	object-fit: contain;
+	overflow: clip;
+}
+
+::view-transition-new(.work):not(:only-child) {
+	animation: vt-fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+	mix-blend-mode: normal;
+	object-fit: contain;
+	overflow: clip;
 }
 
 @keyframes vt-fade-in {

@@ -10,8 +10,10 @@
 	import SanityImage from '$lib/components/SanityImage.svelte';
 	import { getWorks } from '$lib/data.remote';
 	import { localizeHref } from '$lib/paraglide/runtime';
+	import { whenViewTransitionFinished } from '$lib/view-transition';
 	import { VList, type VListHandle } from 'virtua/svelte';
 	import type { WorksQueryResult } from '../../../sanity.types';
+	import { fade } from 'svelte/transition';
 
 	type Work = WorksQueryResult[number];
 
@@ -40,15 +42,10 @@
 	);
 
 	onMount(async () => {
-		const vt = (document as Document & { activeViewTransition?: ViewTransition | null })
-			.activeViewTransition;
-		if (vt) {
-			try {
-				await vt.finished;
-			} catch {
-				// transition aborted
-			}
-		}
+		// Wait until the morph finishes before swapping the static hero for VList.
+		// document.activeViewTransition is missing in Firefox — use our own tracker.
+		await whenViewTransitionFinished();
+		console.log('ready');
 		ready = true;
 	});
 
@@ -189,7 +186,9 @@
 
 <div class="relative h-dvh">
 	{#if !ready}
-		{@render workSection(works[initialIndex], initialIndex, true)}
+		<div class="absolute size-full" out:fade>
+			{@render workSection(works[initialIndex], initialIndex, true)}
+		</div>
 	{:else}
 		<VList
 			bind:this={list}

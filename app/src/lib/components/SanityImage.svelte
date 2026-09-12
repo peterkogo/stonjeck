@@ -108,16 +108,13 @@
 	class="@container-size relative flex h-full w-full items-center justify-center"
 	style:height={containerHeight}
 >
-	<div
-		style:view-transition-name={viewTransitionName}
-		style:width
-		style:height
-		class="relative h-full w-full"
-	>
+	<div style:width style:height class="relative h-full w-full">
 		<img
 			{alt}
 			style:width
 			style:height
+			style:view-transition-name={viewTransitionName}
+			style:view-transition-class={viewTransitionName ? 'work' : undefined}
 			class="absolute inset-0 m-auto"
 			bind:this={imageRef}
 			loading="lazy"
