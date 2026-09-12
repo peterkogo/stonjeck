@@ -13,5 +13,12 @@ export default defineConfig({
 		}),
 		tailwindcss(),
 		sveltekit()
-	]
+	],
+	// Map compiled JS/CSS back to .svelte sources in DevTools (Performance, CSS selector stats)
+	css: {
+		devSourcemap: true
+	},
+	build: {
+		sourcemap: false
+	}
 });

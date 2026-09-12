@@ -4,7 +4,11 @@
 	import { page } from '$app/state';
 	import type { SeriesListQueryResult } from '../../sanity.types';
 	import Lang from '../components/Lang.svelte';
-	import { filterTagsState, parseFilterQuery, stringifyFilterQuery } from './filter-tags.svelte';
+	import {
+		filterTagsState,
+		parseFilterQuery,
+		stringifyFilterQuery
+	} from './filter-tags.svelte';
 
 	let { seriesList }: { seriesList: SeriesListQueryResult } = $props();
 
@@ -50,7 +54,9 @@
 		}
 
 		replaceState(
-			resolve(`${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}` as `/${string}`),
+			// Filter query updates keep the current path; RouteId union can't express arbitrary pathname+search
+			// @ts-expect-error pathname+search is valid at runtime
+			resolve(`${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`),
 			page.state
 		);
 	}
@@ -60,7 +66,9 @@
 		const nextUrl = new URL(page.url);
 		nextUrl.searchParams.delete('filter');
 		replaceState(
-			resolve(`${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}` as `/${string}`),
+			// Filter query updates keep the current path; RouteId union can't express arbitrary pathname+search
+			// @ts-expect-error pathname+search is valid at runtime
+			resolve(`${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`),
 			page.state
 		);
 	}
