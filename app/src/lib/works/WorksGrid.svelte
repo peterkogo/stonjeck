@@ -123,9 +123,9 @@
 								alt={pick(work.title, 'en') || pick(work.title, 'de') || 'Untitled'}
 								imageWidth={1000}
 								quality={55}
-								viewTransitionName={transitionWorkId === work._id
-									? `work-${work._id}`
-									: undefined}
+								// viewTransitionName={transitionWorkId === work._id
+								// 	? `work-${work._id}`
+								// 	: undefined}
 							/>
 						</a>
 					{/if}
