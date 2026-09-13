@@ -107,9 +107,13 @@
 
 		updateLastWork(slug);
 		const href = localizeHref(resolve('/works/[[slug]]', { slug }));
+		// This temporary URL does not participate in reactive state.
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity
 		const url = new URL(href, page.url);
 		url.search = page.url.search;
 		if (page.url.pathname === url.pathname && !page.url.hash) return;
+		// The pathname was resolved before localization above.
+		// eslint-disable-next-line svelte/no-navigation-without-resolve
 		replaceState(url, page.state);
 	}
 
@@ -215,7 +219,6 @@
 						<SanityImage
 							image={work.image}
 							alt={pick(work.title, 'en') || pick(work.title, 'de')}
-							// viewTransitionName={currentWork === work ? `work-${work._id}` : undefined}
 							imageWidth={1600}
 							width="min(100cqw, calc(100cqh * {aspectRatio}))"
 							height="min(100cqh, calc(100cqw / {aspectRatio}))"

@@ -5,49 +5,6 @@ import { prerender } from '$app/server';
 import { sanityClient } from '$lib/sanity/client';
 import { buildTagIndex } from '$lib/works/tag-index';
 
-const seriesListQuery = defineQuery(`
-	*[_type == "series"] | order(order desc) {
-		_id,
-		slug,
-		title,
-		order
-	}
-`);
-
-const seriesBySlugQuery = defineQuery(`
-	*[_type == "series" && slug.current == $slug][0] {
-		_id,
-		slug,
-		title,
-		order,
-		works[]-> | order(date desc) {
-			_id,
-			slug,
-			title,
-			image {
-				hotspot,
-				crop,
-				asset->{
-					_id,
-					metadata {
-						blurHash,
-						dimensions {
-							width,
-							height,
-							aspectRatio
-						}
-					}
-				}
-			},
-			date,
-			size,
-			medium-> {
-				name
-			}
-		}
-	}
-`);
-
 const tagsQuery = defineQuery(`
 	*[_type == "tag"] | order(group asc, slug.current asc) {
 		_id,
@@ -137,29 +94,6 @@ const informationQuery = defineQuery(`
 		impressum
 	}
 `);
-
-const seriesSlugsQuery = defineQuery(`
-	*[_type == "series" && defined(slug.current)].slug.current
-`);
-
-export const getSeriesList = prerender(async () => {
-	return await sanityClient.fetch(seriesListQuery);
-});
-
-export const getSeries = prerender(
-	'unchecked',
-	async (slug: string) => {
-		const series = await sanityClient.fetch(seriesBySlugQuery, { slug });
-		if (!series) error(404, 'Series not found');
-		return series;
-	},
-	{
-		inputs: async () => {
-			const slugs = await sanityClient.fetch(seriesSlugsQuery);
-			return slugs.filter((slug): slug is string => slug !== null);
-		}
-	}
-);
 
 export const getWorks = prerender(async () => {
 	return await sanityClient.fetch(worksQuery);

@@ -1,84 +1,31 @@
-# Turborepo starter
+# Karim Stonjeck website
 
-This Turborepo starter is maintained by the Turborepo core team.
+Artist portfolio with a SvelteKit frontend in `app/` and a Sanity CMS in `studio/`.
+The workspace uses pnpm and Turborepo.
 
-## Using this example
+## Setup
 
-Run the following command:
+Use Node.js 22 or newer and the pnpm version declared in `package.json`.
 
 ```sh
-npx create-turbo@latest
+pnpm install
 ```
 
-## What's inside?
+Create `app/.env` with the public Sanity settings described in [app/README.md](app/README.md).
 
-This Turborepo includes the following packages/apps:
+## Commands
 
-### Apps and Packages
+Run these from the repository root:
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- `pnpm dev`: start the website and Sanity Studio.
+- `pnpm build`: build both applications; the website fetches Sanity content while prerendering.
+- `pnpm lint`: check formatting and ESLint in both applications.
+- `pnpm check-types`: check Svelte/TypeScript in the website and TypeScript in the studio.
+- `pnpm format`: format both applications using their own Prettier configuration.
+- `pnpm typegen`: regenerate the frontend's Sanity query types from `studio/schema.json`.
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+After changing Sanity schemas, run `pnpm --filter stonjeck-studio extract` before
+`pnpm typegen`. Generated query types live in `app/src/sanity.types.ts`.
 
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm build
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm dev
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-npx turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-npx turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+See [app/README.md](app/README.md) for frontend architecture and
+[studio/README.md](studio/README.md) for the CMS.

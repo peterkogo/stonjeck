@@ -8,10 +8,10 @@
 	import FilterTags from '$lib/works/FilterTags.svelte';
 	import type { TagsQueryResult } from '../../sanity.types';
 	import type { TagIndex } from '$lib/works/tag-index';
-
-	let { tags, tagIndex }: { tags: TagsQueryResult; tagIndex: TagIndex } = $props();
 	import { page } from '$app/state';
 	import { getLocale, localizeHref, setLocale } from '$lib/paraglide/runtime';
+
+	let { tags, tagIndex }: { tags: TagsQueryResult; tagIndex: TagIndex } = $props();
 
 	const isAbout = $derived(page.route.id === '/about');
 	let homeSection = $state<'news' | 'works'>('news');
@@ -29,9 +29,13 @@
 
 	function clearSectionHash() {
 		if (page.route.id !== '/' || !['#work', '#works', '#news'].includes(page.url.hash)) return;
+		// This temporary URL does not participate in reactive state.
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity
 		const url = new URL(page.url);
 		url.hash = '';
 		// Preserve filters, history state, and scroll without adding another entry.
+		// The URL is cloned from the already resolved current page.
+		// eslint-disable-next-line svelte/no-navigation-without-resolve
 		replaceState(url, page.state);
 	}
 

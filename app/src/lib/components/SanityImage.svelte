@@ -46,7 +46,7 @@
 	let mounted = $state(false);
 	let onLoadFired = $state(false);
 	let blurHashCanvas = $state<HTMLCanvasElement | undefined>(undefined);
-	let imageRef: HTMLImageElement;
+	let imageRef = $state<HTMLImageElement | undefined>(undefined);
 
 	// Create URL builder with hotspot support
 	function createImageUrl(w: number, h?: number) {

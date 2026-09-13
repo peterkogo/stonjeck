@@ -12,6 +12,7 @@
     "deploy-graphql": "sanity graphql deploy",
     "format": "prettier --write .",
     "lint": "prettier --check . && eslint .",
+    "check-types": "tsc --noEmit",
     "typegen": "sanity typegen generate",
     "extract": "sanity schema extract"
   },

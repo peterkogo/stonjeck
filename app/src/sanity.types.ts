@@ -328,51 +328,6 @@ export type SanityImageAsset = {
 export type AllSanitySchemaTypes = WorkReference | ExhibitionsReference | News | Information | InternationalizedArrayText | SanityImageAssetReference | Exhibitions | InternationalizedArrayString | SanityImageCrop | SanityImageHotspot | Geopoint | Slug | TagReference | MediumReference | Work | Series | Tag | Medium | InternationalizedArrayTextValue | InternationalizedArrayStringValue | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset;
 
 // Source: ../app/src/lib/data.remote.ts
-// Variable: seriesListQuery
-// Query: *[_type == "series"] | order(order desc) {		_id,		slug,		title,		order	}
-export type SeriesListQueryResult = Array<{
-  _id: string;
-  slug: Slug | null;
-  title: InternationalizedArrayString | null;
-  order: number | null;
-}>;
-
-// Source: ../app/src/lib/data.remote.ts
-// Variable: seriesBySlugQuery
-// Query: *[_type == "series" && slug.current == $slug][0] {		_id,		slug,		title,		order,		works[]-> | order(date desc) {			_id,			slug,			title,			image {				hotspot,				crop,				asset->{					_id,					metadata {						blurHash,						dimensions {							width,							height,							aspectRatio						}					}				}			},			date,			size,			medium-> {				name			}		}	}
-export type SeriesBySlugQueryResult = {
-  _id: string;
-  slug: Slug | null;
-  title: InternationalizedArrayString | null;
-  order: number | null;
-  works: Array<{
-    _id: string;
-    slug: Slug | null;
-    title: InternationalizedArrayString | null;
-    image: {
-      hotspot: SanityImageHotspot | null;
-      crop: SanityImageCrop | null;
-      asset: {
-        _id: string;
-        metadata: {
-          blurHash: string | null;
-          dimensions: {
-            width: number | null;
-            height: number | null;
-            aspectRatio: number | null;
-          } | null;
-        } | null;
-      } | null;
-    } | null;
-    date: string | null;
-    size: string | null;
-    medium: {
-      name: InternationalizedArrayString | null;
-    } | null;
-  }> | null;
-} | null;
-
-// Source: ../app/src/lib/data.remote.ts
 // Variable: tagsQuery
 // Query: *[_type == "tag"] | order(group asc, slug.current asc) {		_id,		name,		slug,		group	}
 export type TagsQueryResult = Array<{
@@ -511,22 +466,14 @@ export type InformationQueryResult = {
   }> | null;
 } | null;
 
-// Source: ../app/src/lib/data.remote.ts
-// Variable: seriesSlugsQuery
-// Query: *[_type == "series" && defined(slug.current)].slug.current
-export type SeriesSlugsQueryResult = Array<string | null>;
-
 // Query TypeMap
 declare global {
   interface SanityQueries {
-    "\n\t*[_type == \"series\"] | order(order desc) {\n\t\t_id,\n\t\tslug,\n\t\ttitle,\n\t\torder\n\t}\n": SeriesListQueryResult;
-    "\n\t*[_type == \"series\" && slug.current == $slug][0] {\n\t\t_id,\n\t\tslug,\n\t\ttitle,\n\t\torder,\n\t\tworks[]-> | order(date desc) {\n\t\t\t_id,\n\t\t\tslug,\n\t\t\ttitle,\n\t\t\timage {\n\t\t\t\thotspot,\n\t\t\t\tcrop,\n\t\t\t\tasset->{\n\t\t\t\t\t_id,\n\t\t\t\t\tmetadata {\n\t\t\t\t\t\tblurHash,\n\t\t\t\t\t\tdimensions {\n\t\t\t\t\t\t\twidth,\n\t\t\t\t\t\t\theight,\n\t\t\t\t\t\t\taspectRatio\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t},\n\t\t\tdate,\n\t\t\tsize,\n\t\t\tmedium-> {\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n": SeriesBySlugQueryResult;
     "\n\t*[_type == \"tag\"] | order(group asc, slug.current asc) {\n\t\t_id,\n\t\tname,\n\t\tslug,\n\t\tgroup\n\t}\n": TagsQueryResult;
     "\n\t*[_type == \"work\"] | order(date desc) {\n\t\t_id,\n\t\tslug,\n\t\ttitle,\n\t\timage {\n\t\t\thotspot,\n\t\t\tcrop,\n\t\t\tasset->{\n\t\t\t\t_id,\n\t\t\t\tmetadata {\n\t\t\t\t\tblurHash,\n\t\t\t\t\tdimensions {\n\t\t\t\t\t\twidth,\n\t\t\t\t\t\theight,\n\t\t\t\t\t\taspectRatio\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\tdate,\n\t\tsize,\n\t\ttags[]-> {\n\t\t\t_id,\n\t\t\tslug,\n\t\t\tgroup\n\t\t},\n\t\tmedium-> {\n\t\t\tname\n\t\t}\n\t}\n": WorksQueryResult;
     "\n\t*[_type == \"news\"][0].works[]._ref\n": NewsWorkIdsQueryResult;
     "\n\t*[_type == \"news\"][0].events[]-> {\n\t\t_id,\n\t\ttitle,\n\t\tstartDate,\n\t\tendDate,\n\t\tvenue { name, city },\n\t\tposter {\n\t\t\talt,\n\t\t\thotspot,\n\t\t\tcrop,\n\t\t\tasset->{\n\t\t\t\t_id,\n\t\t\t\tmetadata { blurHash, dimensions { width, height, aspectRatio } }\n\t\t\t}\n\t\t}\n\t}\n": NewsEventsQueryResult;
     "\n\t*[_type == \"information\"][0] {\n\t\t_id,\n\t\t_type,\n\t\ttitleImage-> {\n\t\t\timage {\n\t\t\t\t...,\n\t\t\t\tasset->{\n\t\t\t\t\t...,\n\t\t\t\t\tmetadata{\n\t\t\t\t\t\tblurHash,\n\t\t\t\t\t\tdimensions\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\tbiography,\n\t\timpressum\n\t}\n": InformationQueryResult;
-    "\n\t*[_type == \"series\" && defined(slug.current)].slug.current\n": SeriesSlugsQueryResult;
   }
 }
 // Lets @sanity/client releases that predate the global registry read it too

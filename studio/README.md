@@ -1,9 +1,26 @@
-# Sanity Clean Content Studio
+# Sanity Studio
 
-Congratulations, you have now installed the Sanity Content Studio, an open-source real-time content editing environment connected to the Sanity backend.
+Content editing for the Karim Stonjeck portfolio. Project and dataset settings are
+in `sanity.config.ts` and `sanity.cli.ts`; schemas are in `schemaTypes/`.
 
-Now you can do the following things:
+From the repository root:
 
-- [Read “getting started” in the docs](https://www.sanity.io/docs/introduction/getting-started?utm_source=readme)
-- [Join the community Slack](https://slack.sanity.io/?utm_source=readme)
-- [Extend and build plugins](https://www.sanity.io/docs/content-studio/extending?utm_source=readme)
+```sh
+pnpm --filter stonjeck-studio dev
+pnpm --filter stonjeck-studio lint
+pnpm --filter stonjeck-studio check-types
+pnpm --filter stonjeck-studio build
+```
+
+After schema changes, refresh the schema snapshot and frontend types:
+
+```sh
+pnpm --filter stonjeck-studio extract
+pnpm typegen
+```
+
+After changing only frontend GROQ queries, `pnpm typegen` is sufficient. TypeGen
+writes `app/src/sanity.types.ts`; do not edit that generated file by hand.
+
+The studio retains the series schema for CMS content even though the current
+frontend has no series page.

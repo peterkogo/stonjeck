@@ -6,13 +6,6 @@ const config = {
 	preprocess: vitePreprocess(),
 	kit: {
 		adapter: adapter(),
-		alias: {
-			'@/*': './lib/*'
-		},
-		// TODO: possible optimization for fewer requests
-		// output: {
-		// 	bundleStrategy: 'single'
-		// },
 		paths: {
 			relative: false
 		},
