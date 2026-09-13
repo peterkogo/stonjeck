@@ -1,83 +1,119 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { flip } from 'svelte/animate';
-	import { fade } from 'svelte/transition';
-	import type { WorksQueryResult } from '../../sanity.types';
-	import Work from './Work.svelte';
-	import { filterTagsState } from './filter-tags.svelte';
-	import { cubicInOut, cubicIn } from 'svelte/easing';
-	import { localizeHref } from '$lib/paraglide/runtime';
+	import type { NewsEventsQueryResult, WorksQueryResult } from '../../sanity.types';
+	import ExhibitionCard from './ExhibitionCard.svelte';
+	import { matchesTagFilters, parseFilterQuery } from './filter-tags.svelte';
+	import { page } from '$app/state';
+	import { getTags } from '$lib/data.remote';
+	import { getLocale, localizeHref } from '$lib/paraglide/runtime';
+	import { pick } from '$lib/lang';
 
-	let { works }: { works: WorksQueryResult } = $props();
+	import SanityImage from '$lib/components/SanityImage.svelte';
+	import { browser } from '$app/env';
+	import { afterNavigate } from '$app/navigation';
 
-	type WorkWithSeries = WorksQueryResult[number] & {
-		series?: Array<{ slug: { current: string } | null } | null> | null;
-	};
+	const tags = await getTags();
+
+	let {
+		works,
+		featured = false,
+		events = []
+	}: {
+		works: WorksQueryResult;
+		featured?: boolean;
+		events?: NonNullable<NewsEventsQueryResult>;
+	} = $props();
 
 	const filteredWorks = $derived.by(() => {
-		if (filterTagsState.selected.length === 0) return works;
-
-		const selectedFilters = new Set(filterTagsState.selected);
-
-		return (works as WorkWithSeries[]).filter((work) => {
-			if (!work.series || work.series.length === 0) return false;
-
-			return work.series.some((series) => {
-				const slug = series?.slug?.current;
-				return slug ? selectedFilters.has(slug) : false;
-			});
+		if (featured || !browser) return works;
+		const selected = new Set(parseFilterQuery(page.url.searchParams.get('filter')));
+		const filters = tags.flatMap((tag) => {
+			const slug = tag.slug?.current;
+			return slug && selected.has(slug) ? [slug] : [];
 		});
+		return works.filter((work) => matchesTagFilters(work.tags, filters));
 	});
 
-	let transitionWorkId = $state<string | undefined>(undefined);
+	function initialTransitionWorkId(): string | undefined {
+		if (browser && !featured) {
+			const lastWork = localStorage.getItem('last-work');
+			if (!lastWork) return undefined;
+			localStorage.removeItem('last-work');
+			return works.find((work) => work.slug?.current === lastWork)?._id;
+		}
+		return undefined;
+	}
+
+	let transitionWorkId = $state<string | undefined>(initialTransitionWorkId());
+
+	afterNavigate(({ type, from }) => {
+		// Returning from the viewer follows the last viewed work, which may
+		// differ from the work originally opened in this history entry.
+		// Other back/forward navigation keeps SvelteKit's restored position.
+		if (type === 'popstate' && from?.route.id !== '/works/[[slug]]') return;
+		if (!transitionWorkId || ['#news', '#works'].includes(window.location.hash)) return;
+
+		const slug = works.find((work) => work._id === transitionWorkId)?.slug?.current;
+		if (!slug) return;
+
+		// Restore the viewed work even in a filtered overview. Only fall back
+		// to the section start when the filters exclude that work.
+		const target = document.getElementById(slug);
+		if (target) {
+			target.scrollIntoView({ block: 'center', behavior: 'instant' });
+		} else {
+			document.getElementById('works')?.scrollIntoView({
+				block: 'start',
+				behavior: 'instant'
+			});
+		}
+	});
 </script>
 
-<!-- <svelte:window onpointerup={cleanTransitionWorkId} onpointercancel={cleanTransitionWorkId} /> -->
-
-<div class="w-full overflow-x-hidden p-5 lg:p-8">
+<div
+	class="w-full overflow-x-hidden px-[18px] py-5 md:px-5 lg:p-8"
+	class:min-h-screen={!featured}
+>
+	{#if !featured}
+		<p
+			role="status"
+			class={filteredWorks.length === 0 ? 'text-muted-foreground py-8 text-sm' : 'sr-only'}
+		>
+			{filteredWorks.length === 0
+				? getLocale() === 'de'
+					? 'Keine Werke für diese Auswahl.'
+					: 'No works match these filters.'
+				: `${filteredWorks.length} ${getLocale() === 'de' ? 'Werke' : 'works'}`}
+		</p>
+	{/if}
 	<div
-		class="grid overflow-visible [--frame-width:160px] md:[--frame-width:260px]"
+		class="works-grid grid overflow-visible"
+		class:featured
 		style:--gap="15px"
 		style:--precision={100}
 		style:margin="calc(-1 * var(--gap, 0) / 2)"
-		style:grid-template-columns="repeat(auto-fill, minmax(var(--frame-width), 1fr))"
 	>
-		<div
-			style:--width={100}
-			style:--height={20}
-			style:aspect-ratio={100 / 20}
-			style:width="100%"
-			style:height="100%"
-			style:position="relative"
-			style:grid-row="span calc(var(--height) / var(--width) * var(--precision))"
-		>
-			<div style:position="absolute" style:inset="calc(var(--gap, 0) / 2)">
-				<h1 class="mb-8 w-full font-semibold text-gray-900" aria-label="Karim Stonjeck">
-					<svg
-						class="block w-full"
-						viewBox="0 0 1000 200"
-						preserveAspectRatio="xMidYMid meet"
-						aria-hidden="true"
-						focusable="false"
-					>
-						<text
-							x="0"
-							y="132"
-							fill="currentColor"
-							font-family="'DM Sans', sans-serif"
-							font-size="112"
-							font-weight="600"
-							textLength="1000"
-							lengthAdjust="spacing"
-						>
-							Karim Stonjeck
-						</text>
-					</svg>
-				</h1>
-			</div>
-		</div>
+		{#each events as event (event._id)}
+			{#if event.poster?.asset}
+				{@const aspectRatio =
+					event.poster.asset.metadata?.dimensions?.aspectRatio ?? 210 / 297}
+				<div
+					class="relative w-full"
+					style:aspect-ratio={aspectRatio}
+					style:grid-row="span calc(1 / {aspectRatio} * var(--precision))"
+				>
+					<div class="absolute" style:inset="calc(var(--gap, 0) / 2)">
+						<ExhibitionCard {event} />
+					</div>
+				</div>
+			{/if}
+		{/each}
 		{#each filteredWorks as work (work._id)}
-			{@const dimensions = work.image.asset.metadata.dimensions}
+			{@const dimensions = work.image?.asset?.metadata?.dimensions ?? {
+				width: 0,
+				height: 0,
+				aspectRatio: 0
+			}}
 			{@const slug = work.slug?.current}
 			<div
 				style:--width={dimensions.width}
@@ -87,30 +123,45 @@
 				style:height="100%"
 				style:position="relative"
 				style:grid-row="span calc(var(--height) / var(--width) * var(--precision))"
-				animate:flip={{ duration: 500, easing: cubicInOut }}
 			>
-				<div
-					style:position="absolute"
-					style:inset="calc(var(--gap, 0) / 2)"
-					in:fade={{ delay: 100, duration: 250, easing: cubicIn }}
-					out:fade={{ duration: 2000, easing: cubicIn }}
-				>
+				<div style:position="absolute" style:inset="calc(var(--gap, 0) / 2)">
 					{#if slug}
+						<!-- The route is resolved before Paraglide localizes it. -->
+						<!-- eslint-disable svelte/no-navigation-without-resolve -->
 						<a
+							id={featured ? `news-${slug}` : slug}
 							onpointerdown={() => {
 								transitionWorkId = work._id;
 							}}
-							href={resolve(
-								localizeHref(`/works#${slug}` as `/works#${string}`) as `/works#${string}`
-							)}
+							href={localizeHref(resolve('/works/[[slug]]', { slug }))}
 						>
-							<Work {work} transition={undefined} />
+							<SanityImage
+								image={work.image}
+								alt={pick(work.title, 'en') || pick(work.title, 'de') || 'Untitled'}
+								imageWidth={1000}
+								quality={55}
+							/>
 						</a>
-					{:else}
-						<Work {work} />
+						<!-- eslint-enable svelte/no-navigation-without-resolve -->
 					{/if}
 				</div>
 			</div>
 		{/each}
 	</div>
 </div>
+
+<style>
+	.works-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	@media (min-width: 48rem) {
+		.works-grid {
+			grid-template-columns: repeat(auto-fill, minmax(min(33.333333%, 360px), 1fr));
+		}
+
+		.featured {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+	}
+</style>

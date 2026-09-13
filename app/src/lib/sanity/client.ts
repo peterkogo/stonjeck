@@ -7,19 +7,18 @@ import {
 	PUBLIC_SANITY_API_VERSION
 } from '$env/static/public';
 
-export function assertEnvVar<T>(value: T | undefined, name: string): T {
+function assertEnvVar<T>(value: T | undefined, name: string): T {
 	if (value === undefined) {
 		throw new Error(`Missing environment variable: ${name}`);
 	}
 	return value;
 }
 
-export const projectId = assertEnvVar(PUBLIC_SANITY_PROJECT_ID, 'PUBLIC_SANITY_PROJECT_ID');
-export const dataset = assertEnvVar(PUBLIC_SANITY_DATASET, 'PUBLIC_SANITY_DATASET');
-export const apiVersion = PUBLIC_SANITY_API_VERSION || '2025-06-15';
+const projectId = assertEnvVar(PUBLIC_SANITY_PROJECT_ID, 'PUBLIC_SANITY_PROJECT_ID');
+const dataset = assertEnvVar(PUBLIC_SANITY_DATASET, 'PUBLIC_SANITY_DATASET');
+const apiVersion = PUBLIC_SANITY_API_VERSION || '2025-06-15';
 
-// client serving uncached content everything is static anyway
-// we want the build to always have the newest content
+// Fetch fresh content when prerendering the site.
 export const sanityClient = createClient({
 	projectId,
 	dataset,
@@ -27,14 +26,7 @@ export const sanityClient = createClient({
 	useCdn: false
 });
 
-// Only use cached client for images (not sure if this is necessary)
-const cachedClient = createClient({
-	projectId,
-	dataset,
-	apiVersion,
-	useCdn: false
-});
-const builder = createImageUrlBuilder(cachedClient);
+const builder = createImageUrlBuilder(sanityClient);
 
 export function urlFor(source: SanityImageSource) {
 	return builder.image(source);

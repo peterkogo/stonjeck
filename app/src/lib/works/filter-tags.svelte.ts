@@ -1,5 +1,7 @@
 function normalizeFilters(filters: string[]): string[] {
-	const normalized = filters.map((filter) => filter.trim()).filter((filter) => filter.length > 0);
+	const normalized = filters
+		.map((filter) => filter.trim())
+		.filter((filter) => filter.length > 0);
 
 	return [...new Set(normalized)];
 }
@@ -15,26 +17,11 @@ export function stringifyFilterQuery(filters: string[]): string {
 	return normalizeFilters(filters).join(filterQuerySeparator);
 }
 
-class FilterTagsState {
-	selected = $state<string[]>([]);
-
-	set(filters: string[]) {
-		this.selected = normalizeFilters(filters);
-	}
-
-	toggle(filter: string): string[] {
-		if (this.selected.includes(filter)) {
-			this.selected = this.selected.filter((item) => item !== filter);
-		} else {
-			this.selected = [...this.selected, filter];
-		}
-
-		return this.selected;
-	}
-
-	clear() {
-		this.selected = [];
-	}
+// Groups organize the controls; every selected tag must match the same work.
+export function matchesTagFilters(
+	tags: ({ slug: { current?: string } | null; group: string | null } | null)[] | null,
+	selected: string[]
+): boolean {
+	const slugs = tags?.map((tag) => tag?.slug?.current) ?? [];
+	return selected.every((slug) => slugs.includes(slug));
 }
-
-export const filterTagsState = new FilterTagsState();

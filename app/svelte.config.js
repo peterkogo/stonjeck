@@ -6,13 +6,12 @@ const config = {
 	preprocess: vitePreprocess(),
 	kit: {
 		adapter: adapter(),
+		paths: {
+			relative: false
+		},
 		experimental: {
 			remoteFunctions: true
 		}
-		// TODO: possible optimization for fewer requests
-		// output: {
-		// 	bundleStrategy: 'single'
-		// }
 	},
 	compilerOptions: {
 		experimental: {

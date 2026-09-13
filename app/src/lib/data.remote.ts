@@ -3,45 +3,20 @@ import { defineQuery } from 'groq';
 import { prerender } from '$app/server';
 
 import { sanityClient } from '$lib/sanity/client';
+import { buildTagIndex } from '$lib/works/tag-index';
 
-const seriesListQuery = defineQuery(`
-	*[_type == "series"] | order(order desc) {
+const tagsQuery = defineQuery(`
+	*[_type == "tag"] | order(group asc, slug.current asc) {
 		_id,
+		name,
 		slug,
-		title,
-		order
+		group
 	}
 `);
 
-const seriesBySlugQuery = defineQuery(`
-	*[_type == "series" && slug.current == $slug][0] {
-		_id,
-		slug,
-		title,
-		order,
-		works[]-> | order(date desc) {
-			_id,
-			slug,
-			title,
-			image {
-				...,
-				asset->{
-					...,
-					metadata{
-						blurHash,
-						dimensions
-					}
-				}
-			},
-			date,
-			size,
-			medium-> {
-				_id,
-				name
-			}
-		}
-	}
-`);
+export const getTags = prerender(async () => {
+	return await sanityClient.fetch(tagsQuery);
+});
 
 const worksQuery = defineQuery(`
 	*[_type == "work"] | order(date desc) {
@@ -49,12 +24,17 @@ const worksQuery = defineQuery(`
 		slug,
 		title,
 		image {
-			...,
+			hotspot,
+			crop,
 			asset->{
-				...,
-				metadata{
+				_id,
+				metadata {
 					blurHash,
-					dimensions
+					dimensions {
+						width,
+						height,
+						aspectRatio
+					}
 				}
 			}
 		},
@@ -62,17 +42,34 @@ const worksQuery = defineQuery(`
 		size,
 		tags[]-> {
 			_id,
-			name,
-			slug
-		},
-		"series": *[_type == "series" && references(^._id)] {
-			_id,
 			slug,
-			title
+			group
 		},
 		medium-> {
-			_id,
 			name
+		}
+	}
+`);
+
+const newsWorkIdsQuery = defineQuery(`
+	*[_type == "news"][0].works[]._ref
+`);
+
+const newsEventsQuery = defineQuery(`
+	*[_type == "news"][0].events[]-> {
+		_id,
+		title,
+		startDate,
+		endDate,
+		venue { name, city },
+		poster {
+			alt,
+			hotspot,
+			crop,
+			asset->{
+				_id,
+				metadata { blurHash, dimensions { width, height, aspectRatio } }
+			}
 		}
 	}
 `);
@@ -98,31 +95,28 @@ const informationQuery = defineQuery(`
 	}
 `);
 
-const seriesSlugsQuery = defineQuery(`
-	*[_type == "series" && defined(slug.current)].slug.current
-`);
-
-export const getSeriesList = prerender(async () => {
-	return await sanityClient.fetch(seriesListQuery);
-});
-
-export const getSeries = prerender(
-	'unchecked',
-	async (slug: string) => {
-		const series = await sanityClient.fetch(seriesBySlugQuery, { slug });
-		if (!series) error(404, 'Series not found');
-		return series;
-	},
-	{
-		inputs: async () => {
-			const slugs = await sanityClient.fetch(seriesSlugsQuery);
-			return slugs.filter((slug): slug is string => slug !== null);
-		}
-	}
-);
-
 export const getWorks = prerender(async () => {
 	return await sanityClient.fetch(worksQuery);
+});
+
+export const getTagIndex = prerender(async () => {
+	const [works, tags] = await Promise.all([getWorks(), getTags()]);
+	const index = buildTagIndex(works);
+	// Include unused tags with empty lists, and omit tags absent from the controls.
+	return new Map(
+		tags.flatMap((tag) => {
+			const slug = tag.slug?.current;
+			return slug ? [[slug, index.get(slug) ?? []] as const] : [];
+		})
+	);
+});
+
+export const getNewsWorkIds = prerender(async () => {
+	return (await sanityClient.fetch(newsWorkIdsQuery)) ?? [];
+});
+
+export const getNewsEvents = prerender(async () => {
+	return (await sanityClient.fetch(newsEventsQuery))?.filter((event) => event !== null) ?? [];
 });
 
 export const getInformation = prerender(async () => {
