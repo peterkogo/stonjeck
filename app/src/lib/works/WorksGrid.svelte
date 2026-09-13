@@ -53,27 +53,27 @@
 		if (type === 'popstate' && from?.route.id !== '/works/[[slug]]') return;
 		if (!transitionWorkId || ['#news', '#works'].includes(window.location.hash)) return;
 
-		// A filtered overview starts at Works so the filter controls stay visible,
-		// even when the last viewed work is no longer among the filtered results.
-		if (parseFilterQuery(page.url.searchParams.get('filter')).length > 0) {
+		const slug = works.find((work) => work._id === transitionWorkId)?.slug?.current;
+		if (!slug) return;
+
+		// Restore the viewed work even in a filtered overview. Only fall back
+		// to the section start when the filters exclude that work.
+		const target = document.getElementById(slug);
+		if (target) {
+			target.scrollIntoView({ block: 'center', behavior: 'instant' });
+		} else {
 			document.getElementById('works')?.scrollIntoView({
 				block: 'start',
 				behavior: 'instant'
 			});
-			return;
 		}
-
-		const slug = works.find((work) => work._id === transitionWorkId)?.slug?.current;
-		if (!slug) return;
-
-		document.getElementById(slug)?.scrollIntoView({
-			block: 'center',
-			behavior: 'instant'
-		});
 	});
 </script>
 
-<div class="w-full overflow-x-hidden p-5 lg:p-8" class:min-h-screen={!featured}>
+<div
+	class="w-full overflow-x-hidden px-[18px] py-5 md:px-5 lg:p-8"
+	class:min-h-screen={!featured}
+>
 	{#if !featured}
 		<p
 			role="status"
@@ -81,9 +81,9 @@
 		>
 			{filteredWorks.length === 0
 				? getLocale() === 'de'
-					? 'Keine Arbeiten für diese Auswahl.'
+					? 'Keine Werke für diese Auswahl.'
 					: 'No works match these filters.'
-				: `${filteredWorks.length} ${getLocale() === 'de' ? 'Arbeiten' : 'works'}`}
+				: `${filteredWorks.length} ${getLocale() === 'de' ? 'Werke' : 'works'}`}
 		</p>
 	{/if}
 	<div

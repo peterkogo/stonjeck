@@ -5,7 +5,9 @@
 	import { slide } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import { prefersReducedMotion } from 'svelte/motion';
+	import { parseFilterQuery } from '$lib/works/filter-tags.svelte';
 	import FilterTags from '$lib/works/FilterTags.svelte';
+	import MobileNav from './MobileNav.svelte';
 	import type { TagsQueryResult } from '../../sanity.types';
 	import type { TagIndex } from '$lib/works/tag-index';
 	import { page } from '$app/state';
@@ -13,7 +15,11 @@
 
 	let { tags, tagIndex }: { tags: TagsQueryResult; tagIndex: TagIndex } = $props();
 
+	const hasFilters = $derived(
+		parseFilterQuery(page.url.searchParams.get('filter')).length > 0
+	);
 	const isAbout = $derived(page.route.id === '/about');
+	let mobileFiltersVisible = $state(false);
 	let homeSection = $state<'news' | 'works'>('news');
 	let visibleSections = $state<'news' | 'works' | 'both'>('news');
 	const activeSection = $derived(
@@ -61,7 +67,9 @@
 
 		event.preventDefault();
 		const href = `${localizeHref(resolve('/'))}${section === 'works' ? '#works' : ''}`;
-		await goto(resolve(href as '/'), { noScroll: true });
+		if (page.route.id !== '/') {
+			await goto(resolve(href as '/'), { noScroll: true });
+		}
 		const behavior = prefersReducedMotion.current ? 'instant' : 'smooth';
 		if (section === 'news') {
 			window.scrollTo({ top: 0, behavior });
@@ -86,6 +94,9 @@
 			newsBounds.top < window.innerHeight;
 		const worksVisible =
 			worksBounds.height > 0 && worksBounds.bottom > 0 && worksBounds.top < window.innerHeight;
+		// Reveal mobile filters one tenth of a viewport before News leaves the screen.
+		mobileFiltersVisible =
+			!newsBounds || newsBounds.height === 0 || newsBounds.bottom <= window.innerHeight * 0.1;
 		visibleSections = newsVisible && worksVisible ? 'both' : newsVisible ? 'news' : 'works';
 
 		// Switch when Works reaches the upper part of the viewport, or the page ends.
@@ -120,6 +131,19 @@
 </script>
 
 <svelte:window onscroll={updateSection} onresize={updateSection} />
+
+<MobileNav
+	{activeSection}
+	{isAbout}
+	{navigateToSection}
+	{navigateBack}
+	{tags}
+	{tagIndex}
+	{hasFilters}
+	showFilters={page.route.id === '/' &&
+		(mobileFiltersVisible || hasFilters) &&
+		tags.length > 0}
+/>
 
 <aside
 	class="sidebar bg-background fixed inset-y-0 left-0 z-20 hidden flex-col overflow-y-auto py-5 pl-2 sm:py-8 sm:pl-4 md:flex"
@@ -166,13 +190,13 @@
 					onclick={(event) => navigateToSection(event, 'works')}
 					aria-current={activeSection === 'works' ? 'location' : undefined}
 				>
-					{getLocale() === 'de' ? 'Arbeiten' : 'Works'}
+					{getLocale() === 'de' ? 'Werke' : 'Works'}
 				</a>
 			</div>
 		{/if}
 	</nav>
 	{#if page.route.id === '/'}
-		{#if visibleSections === 'works' && tags.length > 0}
+		{#if (visibleSections === 'works' || hasFilters) && tags.length > 0}
 			<!-- Reveal on returning to the overview; only animate exits within this page. -->
 			<div
 				class="min-w-0 [contain:inline-size]"

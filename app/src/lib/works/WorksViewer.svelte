@@ -111,7 +111,10 @@
 		// eslint-disable-next-line svelte/prefer-svelte-reactivity
 		const url = new URL(href, page.url);
 		url.search = page.url.search;
-		if (page.url.pathname === url.pathname && !page.url.hash) return;
+		// Shallow replaceState updates the address bar, but retains page.url.
+		// Compare the live URL so returning to the initial work also updates it,
+		// and scrolling within one work does not repeatedly write history.
+		if (window.location.pathname === url.pathname && !window.location.hash) return;
 		// The pathname was resolved before localization above.
 		// eslint-disable-next-line svelte/no-navigation-without-resolve
 		replaceState(url, page.state);
@@ -212,7 +215,7 @@
 		>
 			<div class="flex min-h-0 min-w-0 flex-1 items-center justify-center">
 				<div
-					class="flex h-full min-h-0 w-full max-w-full flex-col gap-0 p-8 lg:grid lg:h-auto lg:grid-cols-[minmax(0,1fr)_12rem] lg:items-stretch lg:gap-x-8 lg:gap-y-0 lg:p-0"
+					class="flex h-full min-h-0 w-full max-w-full flex-col gap-0 px-[18px] py-5 md:p-8 lg:grid lg:h-auto lg:grid-cols-[minmax(0,1fr)_12rem] lg:items-stretch lg:gap-x-8 lg:gap-y-0 lg:p-0"
 				>
 					<div
 						class="flex min-h-0 min-w-0 flex-1 flex-col items-center justify-center self-stretch lg:h-full lg:w-full lg:max-w-full lg:flex-none"
@@ -263,13 +266,21 @@
 
 <style>
 	.work-section {
+		--work-inline-padding: 18px;
 		/* Center the rendered image and caption together, including wide works. */
 		--work-image-height: min(
 			calc(100dvh - var(--spacing) * 32),
 			calc(
-				(100vw - var(--site-sidebar-width) - var(--spacing) * 16) / var(--work-aspect-ratio)
+				(100vw - var(--site-sidebar-width) - var(--work-inline-padding) * 2) /
+					var(--work-aspect-ratio)
 			)
 		);
+	}
+
+	@media (min-width: 48rem) {
+		.work-section {
+			--work-inline-padding: calc(var(--spacing) * 8);
+		}
 	}
 
 	@media (min-width: 64rem) {

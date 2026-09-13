@@ -47,6 +47,10 @@
 }
 
 :root {
+	--mobile-title-top: 22px;
+	/* Match one column of the mobile artwork grid on every page using the title. */
+	--mobile-title-width: calc((100vw - 36px - 15px) / 2);
+	--mobile-title-height: calc(var(--mobile-title-width) * 0.16);
 	--background: oklch(93% 0.01045 99.011);
 	--foreground: oklch(0.147 0.004 49.3);
 	--card: oklch(1 0 0);

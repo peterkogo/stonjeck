@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { getLocale } from '$lib/paraglide/runtime';
 	import WorksGrid from '$lib/works/WorksGrid.svelte';
+	import MobileTitle from '$lib/components/MobileTitle.svelte';
 	import { getNewsEvents, getNewsWorkIds, getWorks } from '$lib/data.remote';
 
 	const [works, newsWorkIds, events] = await Promise.all([
@@ -20,25 +21,6 @@
 	<meta name="description" content="Discover the artwork collection of Karim Stonjeck" />
 </svelte:head>
 
-<h1
-	class="pointer-events-none fixed top-5 left-5 z-30 w-[calc((100%-2.5rem-15px)/2)] text-white mix-blend-difference md:hidden"
-	aria-label="Karim Stonjeck"
->
-	<svg class="block w-full" viewBox="0 0 1000 160" aria-hidden="true" focusable="false">
-		<text
-			x="0"
-			y="120"
-			fill="currentColor"
-			font-size="155"
-			font-weight="500"
-			textLength="1000"
-			lengthAdjust="spacingAndGlyphs"
-		>
-			Karim Stonjeck
-		</text>
-	</svg>
-</h1>
-
 {#snippet sectionDivider(label: string)}
 	<h2 class="section-divider">
 		{label}
@@ -46,39 +28,50 @@
 	</h2>
 {/snippet}
 
-<!-- Keep the first grid close to the title, with its divider in the gap. -->
-<div class="pt-[calc((100vw-2.5rem-15px)/2*0.16+5px)] md:pt-0">
-	{#if hasNews}
-		<section
-			id="news"
-			aria-label={getLocale() === 'de' ? 'Aktuelles' : 'News'}
-			class="mb-12 lg:mb-20"
-		>
-			{@render sectionDivider(getLocale() === 'de' ? 'Aktuelles' : 'News')}
-			<WorksGrid works={newsWorks} {events} featured />
-		</section>
-	{:else}
-		<div id="news"></div>
-	{/if}
+<div class="home">
+	<MobileTitle />
+	<div class="home-sections">
+		{#if hasNews}
+			<section
+				id="news"
+				aria-label={getLocale() === 'de' ? 'Aktuelles' : 'News'}
+				class="mb-12 lg:mb-20"
+			>
+				{@render sectionDivider(getLocale() === 'de' ? 'Aktuelles' : 'News')}
+				<WorksGrid works={newsWorks} {events} featured />
+			</section>
+		{:else}
+			<div id="news"></div>
+		{/if}
 
-	<section
-		id="works"
-		class:after-news={hasNews}
-		aria-label={getLocale() === 'de' ? 'Arbeiten' : 'Works'}
-	>
-		{@render sectionDivider(getLocale() === 'de' ? 'Arbeiten' : 'Works')}
-		<WorksGrid {works} />
-	</section>
+		<section id="works" aria-label={getLocale() === 'de' ? 'Werke' : 'Works'}>
+			{@render sectionDivider(getLocale() === 'de' ? 'Werke' : 'Works')}
+			<WorksGrid {works} />
+		</section>
+	</div>
 </div>
 
 <style>
+	.home {
+		/* Equal space above and below the shared title, including the grid padding. */
+		--section-top: calc(var(--mobile-title-top) * 2 + var(--mobile-title-height) - 1.25rem);
+	}
+
+	.home-sections {
+		/* The grid supplies the final 1.25rem of space above its images. */
+		padding-top: var(--section-top);
+	}
+
 	section {
 		position: relative;
+		/* Match the opening layout for both hash links and scrollIntoView. */
+		scroll-margin-top: var(--section-top);
 	}
 
 	.section-divider {
 		position: absolute;
-		top: 0.3125rem;
+		/* Halfway from the page top to the images, relative to this section. */
+		top: calc((1.25rem - var(--section-top)) / 2);
 		right: 0;
 		transform: translateY(-50%);
 		display: flex;
@@ -87,19 +80,10 @@
 		gap: 0.75rem;
 		margin: 0;
 		color: var(--muted-foreground);
-		font-size: 1.0625rem;
+		font-size: clamp(0.6875rem, 2.8vw, 0.8125rem);
 		font-weight: 400;
 		line-height: 1;
 		letter-spacing: 0.06em;
-	}
-
-	section:not(.after-news) .section-divider {
-		margin-top: -1rem;
-	}
-
-	/* Center in the existing 3rem section margin; both grids have equal padding. */
-	.after-news .section-divider {
-		top: -1.5rem;
 	}
 
 	.section-divider span {
@@ -120,7 +104,22 @@
 		content: '';
 	}
 
+	@media (max-width: 47.999rem) {
+		#news {
+			/* Keep the previous artwork above the viewport when Works is aligned. */
+			margin-bottom: max(3rem, calc(var(--section-top) - 1.25rem));
+		}
+	}
+
 	@media (min-width: 48rem) {
+		section {
+			scroll-margin-top: 0;
+		}
+
+		.home-sections {
+			padding-top: 0;
+		}
+
 		.section-divider {
 			display: none;
 		}
