@@ -3,6 +3,7 @@ import { defineQuery } from 'groq';
 import { prerender } from '$app/server';
 
 import { sanityClient } from '$lib/sanity/client';
+import { buildTagIndex } from '$lib/works/tag-index';
 
 const seriesListQuery = defineQuery(`
 	*[_type == "series"] | order(order desc) {
@@ -47,6 +48,19 @@ const seriesBySlugQuery = defineQuery(`
 	}
 `);
 
+const tagsQuery = defineQuery(`
+	*[_type == "tag"] | order(group asc, slug.current asc) {
+		_id,
+		name,
+		slug,
+		group
+	}
+`);
+
+export const getTags = prerender(async () => {
+	return await sanityClient.fetch(tagsQuery);
+});
+
 const worksQuery = defineQuery(`
 	*[_type == "work"] | order(date desc) {
 		_id,
@@ -69,8 +83,10 @@ const worksQuery = defineQuery(`
 		},
 		date,
 		size,
-		"series": *[_type == "series" && references(^._id)] {
-			slug
+		tags[]-> {
+			_id,
+			slug,
+			group
 		},
 		medium-> {
 			name
@@ -147,6 +163,18 @@ export const getSeries = prerender(
 
 export const getWorks = prerender(async () => {
 	return await sanityClient.fetch(worksQuery);
+});
+
+export const getTagIndex = prerender(async () => {
+	const [works, tags] = await Promise.all([getWorks(), getTags()]);
+	const index = buildTagIndex(works);
+	// Include unused tags with empty lists, and omit tags absent from the controls.
+	return new Map(
+		tags.flatMap((tag) => {
+			const slug = tag.slug?.current;
+			return slug ? [[slug, index.get(slug) ?? []] as const] : [];
+		})
+	);
 });
 
 export const getNewsWorkIds = prerender(async () => {

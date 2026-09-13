@@ -2,18 +2,21 @@
 	import { type Snippet } from 'svelte';
 	import '../app.css';
 	import NavBar from '$lib/components/NavBar.svelte';
+	import { getTags, getTagIndex } from '$lib/data.remote';
+
+	const [tags, tagIndex] = await Promise.all([getTags(), getTagIndex()]);
 
 	let { children }: { children: Snippet } = $props();
 </script>
 
-<NavBar />
+<NavBar {tags} {tagIndex} />
 <main>
 	{@render children()}
 </main>
 
 <style>
 	:global(:root) {
-		--site-sidebar-width: 8rem;
+		--site-sidebar-width: 0px;
 	}
 
 	main {
@@ -22,9 +25,9 @@
 		margin-left: var(--site-sidebar-width);
 	}
 
-	@media (max-width: 639px) {
+	@media (min-width: 48rem) {
 		:global(:root) {
-			--site-sidebar-width: 6rem;
+			--site-sidebar-width: 12rem;
 		}
 	}
 </style>

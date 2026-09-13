@@ -1,30 +1,25 @@
 <script lang="ts">
-	import { untrack } from 'svelte';
+	import { flushSync, onMount, untrack } from 'svelte';
 	import { afterNavigate, beforeNavigate, replaceState } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { page } from '$app/state';
+	import { navigating, page } from '$app/state';
 	import Lang from '$lib/components/Lang.svelte';
 	import { pick } from '$lib/lang';
 	import { browser } from '$app/env';
 	import SanityImage from '$lib/components/SanityImage.svelte';
-	import { getWorks } from '$lib/data.remote';
+	import { localizeHref } from '$lib/paraglide/runtime';
+	import type { WorksQueryResult } from '../../sanity.types';
 
-	const works = await getWorks();
-
+	let { works, initialIndex }: { works: WorksQueryResult; initialIndex: number } = $props();
 	let wrapper: HTMLDivElement | undefined = $state();
-
-	function indexFromHash() {
-		let hash = page.url.hash.slice(1);
-		try {
-			hash = decodeURIComponent(hash);
-		} catch {
-			return 0;
-		}
-		if (!hash) return 0;
-
-		const index = works.findIndex((work) => work.slug?.current === hash);
-		return index >= 0 ? index : 0;
-	}
+	let expanded = $state(false);
+	const visibleWorks = $derived(
+		expanded
+			? works.map((work, index) => ({ work, index }))
+			: works
+					.slice(initialIndex, initialIndex + 1)
+					.map((work) => ({ work, index: initialIndex }))
+	);
 
 	// Scroll events can still contain the outgoing grid's position until
 	// SvelteKit has restored the destination hash/history scroll position.
@@ -34,13 +29,61 @@
 		scrollReady = false;
 	});
 
-	afterNavigate(() => {
+	function activateGallery(restoreSlug?: string) {
 		clearScrollTarget();
+		if (!expanded && wrapper) {
+			const anchor = wrapper.querySelector<HTMLElement>('[data-index]');
+			const top = anchor?.getBoundingClientRect().top ?? 0;
+			const root = document.documentElement;
+			const snap = root.style.scrollSnapType;
+			const anchoring = root.style.overflowAnchor;
+			root.style.scrollSnapType = 'none';
+			root.style.overflowAnchor = 'none';
+			// Insert and compensate synchronously, before the browser can paint.
+			// The keyed section (including its already loaded image) stays mounted.
+			flushSync(() => {
+				expanded = true;
+			});
+			if (anchor) {
+				window.scrollBy({
+					top: anchor.getBoundingClientRect().top - top,
+					behavior: 'instant'
+				});
+			}
+			root.style.scrollSnapType = snap;
+			root.style.overflowAnchor = anchoring;
+		}
 		scrollReady = true;
+		if (restoreSlug) {
+			const index = works.findIndex((work) => work.slug?.current === restoreSlug);
+			if (index >= 0) scrollToIndex(index, 'instant');
+		}
 		updateCurrentIndex();
+	}
+
+	afterNavigate(({ type }) => {
+		// Shallow replacements retain the original params in history, so a
+		// popstate destination can name a different work from initialIndex.
+		const slug =
+			type === 'popstate'
+				? decodeURIComponent(
+						window.location.pathname.replace(/\/$/, '').split('/').pop() ?? ''
+					)
+				: undefined;
+		activateGallery(slug);
+	});
+	onMount(() => {
+		// Initial hydration recovery can miss afterNavigate. During client
+		// navigation, however, only afterNavigate may expand the list: Kit
+		// still has to reset/restore scroll after this component mounts.
+		if (navigating.to) return;
+		const frame = requestAnimationFrame(() => {
+			if (!navigating.to) activateGallery();
+		});
+		return () => cancelAnimationFrame(frame);
 	});
 
-	let currentIndex = $state(indexFromHash());
+	let currentIndex = $state(untrack(() => initialIndex));
 	let targetIndex: number | undefined;
 
 	const currentWork = $derived(works[currentIndex]);
@@ -51,7 +94,6 @@
 	let previousSlug: string | undefined;
 
 	function updateLastWork(slug: string | undefined) {
-		console.log('updateLastWork', slug, previousSlug);
 		if (!slug || !browser || slug === previousSlug) return;
 		localStorage.setItem('last-work', slug);
 		previousSlug = slug;
@@ -63,14 +105,12 @@
 		const slug = works[index]?.slug?.current;
 		if (!slug) return;
 
-		// Remember the work even when its hash already matches (e.g. on entry).
 		updateLastWork(slug);
-		const nextHash = `#${encodeURIComponent(slug)}`;
-		if (page.url.hash === nextHash) return;
-
-		const href = `${page.url.pathname}${page.url.search}${nextHash}`;
-		// @ts-expect-error href can include search+hash; generated RouteId omits this combination
-		replaceState(resolve(href), page.state);
+		const href = localizeHref(resolve('/works/[[slug]]', { slug }));
+		const url = new URL(href, page.url);
+		url.search = page.url.search;
+		if (page.url.pathname === url.pathname && !page.url.hash) return;
+		replaceState(url, page.state);
 	}
 
 	function scrollToIndex(index: number, behavior: ScrollBehavior = 'smooth') {
@@ -157,7 +197,7 @@
 />
 
 <div bind:this={wrapper}>
-	{#each works as work, index (work._id)}
+	{#each visibleWorks as { work, index } (work._id)}
 		{@const aspectRatio = work.image?.asset?.metadata?.dimensions?.aspectRatio ?? 1}
 		<section
 			id={work.slug?.current}

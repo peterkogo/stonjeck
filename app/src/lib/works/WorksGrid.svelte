@@ -1,10 +1,13 @@
 <script lang="ts">
-	import { flip } from 'svelte/animate';
-	import { fade } from 'svelte/transition';
+	import { resolve } from '$app/paths';
 	import type { NewsEventsQueryResult, WorksQueryResult } from '../../sanity.types';
 	import ExhibitionCard from './ExhibitionCard.svelte';
-	import { filterTagsState } from './filter-tags.svelte';
-	import { cubicInOut, cubicIn } from 'svelte/easing';
+	import { matchesTagFilters, parseFilterQuery } from './filter-tags.svelte';
+	import { page } from '$app/state';
+	import { getTags } from '$lib/data.remote';
+	import { getLocale } from '$lib/paraglide/runtime';
+
+	const tags = await getTags();
 	import { localizeHref } from '$lib/paraglide/runtime';
 	import { pick } from '$lib/lang';
 
@@ -23,18 +26,13 @@
 	} = $props();
 
 	const filteredWorks = $derived.by(() => {
-		if (featured || filterTagsState.selected.length === 0) return works;
-
-		const selectedFilters = new Set(filterTagsState.selected);
-
-		return works.filter((work) => {
-			if (!work.series || work.series.length === 0) return false;
-
-			return work.series.some((series) => {
-				const slug = series?.slug?.current;
-				return slug ? selectedFilters.has(slug) : false;
-			});
+		if (featured || !browser) return works;
+		const selected = new Set(parseFilterQuery(page.url.searchParams.get('filter')));
+		const filters = tags.flatMap((tag) => {
+			const slug = tag.slug?.current;
+			return slug && selected.has(slug) ? [slug] : [];
 		});
+		return works.filter((work) => matchesTagFilters(work.tags, filters));
 	});
 
 	function initialTransitionWorkId(): string | undefined {
@@ -49,7 +47,9 @@
 
 	let transitionWorkId = $state<string | undefined>(initialTransitionWorkId());
 
-	afterNavigate(() => {
+	afterNavigate(({ type }) => {
+		// Keep SvelteKit's restored scroll position when going back or forward.
+		if (type === 'popstate') return;
 		if (!transitionWorkId || ['#news', '#works'].includes(window.location.hash)) return;
 
 		const slug = works.find((work) => work._id === transitionWorkId)?.slug?.current;
@@ -64,7 +64,19 @@
 
 <!-- <svelte:window onpointerup={cleanTransitionWorkId} onpointercancel={cleanTransitionWorkId} /> -->
 
-<div class="w-full overflow-x-hidden p-5 lg:p-8">
+<div class="w-full overflow-x-hidden p-5 lg:p-8" class:min-h-screen={!featured}>
+	{#if !featured}
+		<p
+			role="status"
+			class={filteredWorks.length === 0 ? 'text-muted-foreground py-8 text-sm' : 'sr-only'}
+		>
+			{filteredWorks.length === 0
+				? getLocale() === 'de'
+					? 'Keine Arbeiten für diese Auswahl.'
+					: 'No works match these filters.'
+				: `${filteredWorks.length} ${getLocale() === 'de' ? 'Arbeiten' : 'works'}`}
+		</p>
+	{/if}
 	<!-- <div
 		class="pointer-events-none fixed top-0 z-10 grid w-[calc(100%-var(--spacing)*7)] overflow-visible [--frame-width:160px] md:[--frame-width:360px] lg:w-[calc(100%-var(--spacing)*12)]"
 		style:--gap="15px"
@@ -90,14 +102,11 @@
 		</div>
 	</div> -->
 	<div
-		class="grid overflow-visible [--frame-width:160px] md:[--frame-width:360px]"
+		class="works-grid grid overflow-visible"
 		class:featured
 		style:--gap="15px"
 		style:--precision={100}
 		style:margin="calc(-1 * var(--gap, 0) / 2)"
-		style:grid-template-columns={featured
-			? undefined
-			: 'repeat(auto-fill, minmax(min(100%, var(--frame-width)), 1fr))'}
 	>
 		{#each events as event (event._id)}
 			{#if event.poster?.asset}
@@ -129,21 +138,15 @@
 				style:height="100%"
 				style:position="relative"
 				style:grid-row="span calc(var(--height) / var(--width) * var(--precision))"
-				animate:flip={{ duration: 500, easing: cubicInOut }}
 			>
-				<div
-					style:position="absolute"
-					style:inset="calc(var(--gap, 0) / 2)"
-					in:fade={{ delay: 100, duration: 250, easing: cubicIn }}
-					out:fade={{ duration: 2000, easing: cubicIn }}
-				>
+				<div style:position="absolute" style:inset="calc(var(--gap, 0) / 2)">
 					{#if slug}
 						<a
 							id={featured ? `news-${slug}` : slug}
 							onpointerdown={() => {
 								transitionWorkId = work._id;
 							}}
-							href={`${localizeHref('/works')}#${slug}`}
+							href={localizeHref(resolve('/works/[[slug]]', { slug }))}
 						>
 							<SanityImage
 								image={work.image}
@@ -163,11 +166,15 @@
 </div>
 
 <style>
-	.featured {
+	.works-grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
 	@media (min-width: 48rem) {
+		.works-grid {
+			grid-template-columns: repeat(auto-fill, minmax(min(33.333333%, 360px), 1fr));
+		}
+
 		.featured {
 			grid-template-columns: repeat(3, minmax(0, 1fr));
 		}
