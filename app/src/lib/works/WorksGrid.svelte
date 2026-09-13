@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
-	import type { WorksQueryResult } from '../../sanity.types';
+	import type { NewsEventsQueryResult, WorksQueryResult } from '../../sanity.types';
+	import ExhibitionCard from './ExhibitionCard.svelte';
 	import { filterTagsState } from './filter-tags.svelte';
 	import { cubicInOut, cubicIn } from 'svelte/easing';
 	import { localizeHref } from '$lib/paraglide/runtime';
@@ -11,10 +12,18 @@
 	import { browser } from '$app/env';
 	import { afterNavigate } from '$app/navigation';
 
-	let { works }: { works: WorksQueryResult } = $props();
+	let {
+		works,
+		featured = false,
+		events = []
+	}: {
+		works: WorksQueryResult;
+		featured?: boolean;
+		events?: NonNullable<NewsEventsQueryResult>;
+	} = $props();
 
 	const filteredWorks = $derived.by(() => {
-		if (filterTagsState.selected.length === 0) return works;
+		if (featured || filterTagsState.selected.length === 0) return works;
 
 		const selectedFilters = new Set(filterTagsState.selected);
 
@@ -29,7 +38,7 @@
 	});
 
 	function initialTransitionWorkId(): string | undefined {
-		if (browser) {
+		if (browser && !featured) {
 			const lastWork = localStorage.getItem('last-work');
 			if (!lastWork) return undefined;
 			localStorage.removeItem('last-work');
@@ -41,7 +50,7 @@
 	let transitionWorkId = $state<string | undefined>(initialTransitionWorkId());
 
 	afterNavigate(() => {
-		if (!transitionWorkId) return;
+		if (!transitionWorkId || ['#news', '#works'].includes(window.location.hash)) return;
 
 		const slug = works.find((work) => work._id === transitionWorkId)?.slug?.current;
 		if (!slug) return;
@@ -82,11 +91,29 @@
 	</div> -->
 	<div
 		class="grid overflow-visible [--frame-width:160px] md:[--frame-width:360px]"
+		class:featured
 		style:--gap="15px"
 		style:--precision={100}
 		style:margin="calc(-1 * var(--gap, 0) / 2)"
-		style:grid-template-columns="repeat(auto-fill, minmax(min(100%, var(--frame-width)), 1fr))"
+		style:grid-template-columns={featured
+			? undefined
+			: 'repeat(auto-fill, minmax(min(100%, var(--frame-width)), 1fr))'}
 	>
+		{#each events as event (event._id)}
+			{#if event.poster?.asset}
+				{@const aspectRatio =
+					event.poster.asset.metadata?.dimensions?.aspectRatio ?? 210 / 297}
+				<div
+					class="relative w-full"
+					style:aspect-ratio={aspectRatio}
+					style:grid-row="span calc(1 / {aspectRatio} * var(--precision))"
+				>
+					<div class="absolute" style:inset="calc(var(--gap, 0) / 2)">
+						<ExhibitionCard {event} />
+					</div>
+				</div>
+			{/if}
+		{/each}
 		{#each filteredWorks as work (work._id)}
 			{@const dimensions = work.image?.asset?.metadata?.dimensions ?? {
 				width: 0,
@@ -112,7 +139,7 @@
 				>
 					{#if slug}
 						<a
-							id={slug}
+							id={featured ? `news-${slug}` : slug}
 							onpointerdown={() => {
 								transitionWorkId = work._id;
 							}}
@@ -134,3 +161,15 @@
 		{/each}
 	</div>
 </div>
+
+<style>
+	.featured {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	@media (min-width: 48rem) {
+		.featured {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+	}
+</style>

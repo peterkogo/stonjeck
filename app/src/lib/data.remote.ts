@@ -78,6 +78,29 @@ const worksQuery = defineQuery(`
 	}
 `);
 
+const newsWorkIdsQuery = defineQuery(`
+	*[_type == "news"][0].works[]._ref
+`);
+
+const newsEventsQuery = defineQuery(`
+	*[_type == "news"][0].events[]-> {
+		_id,
+		title,
+		startDate,
+		endDate,
+		venue { name, city },
+		poster {
+			alt,
+			hotspot,
+			crop,
+			asset->{
+				_id,
+				metadata { blurHash, dimensions { width, height, aspectRatio } }
+			}
+		}
+	}
+`);
+
 const informationQuery = defineQuery(`
 	*[_type == "information"][0] {
 		_id,
@@ -124,6 +147,14 @@ export const getSeries = prerender(
 
 export const getWorks = prerender(async () => {
 	return await sanityClient.fetch(worksQuery);
+});
+
+export const getNewsWorkIds = prerender(async () => {
+	return (await sanityClient.fetch(newsWorkIdsQuery)) ?? [];
+});
+
+export const getNewsEvents = prerender(async () => {
+	return (await sanityClient.fetch(newsEventsQuery))?.filter((event) => event !== null) ?? [];
 });
 
 export const getInformation = prerender(async () => {

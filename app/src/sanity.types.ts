@@ -98,6 +98,14 @@ export type Exhibitions = {
     city?: string;
     location?: Geopoint;
   };
+  poster?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: InternationalizedArrayString;
+    _type: "image";
+  };
   photos?: Array<{
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -397,6 +405,41 @@ export type WorksQueryResult = Array<{
 }>;
 
 // Source: ../app/src/lib/data.remote.ts
+// Variable: newsWorkIdsQuery
+// Query: *[_type == "news"][0].works[]._ref
+export type NewsWorkIdsQueryResult = Array<string> | null;
+
+// Source: ../app/src/lib/data.remote.ts
+// Variable: newsEventsQuery
+// Query: *[_type == "news"][0].events[]-> {		_id,		title,		startDate,		endDate,		venue { name, city },		poster {			alt,			hotspot,			crop,			asset->{				_id,				metadata { blurHash, dimensions { width, height, aspectRatio } }			}		}	}
+export type NewsEventsQueryResult = Array<{
+  _id: string;
+  title: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  venue: {
+    name: string | null;
+    city: string | null;
+  } | null;
+  poster: {
+    alt: InternationalizedArrayString | null;
+    hotspot: SanityImageHotspot | null;
+    crop: SanityImageCrop | null;
+    asset: {
+      _id: string;
+      metadata: {
+        blurHash: string | null;
+        dimensions: {
+          width: number | null;
+          height: number | null;
+          aspectRatio: number | null;
+        } | null;
+      } | null;
+    } | null;
+  } | null;
+}> | null;
+
+// Source: ../app/src/lib/data.remote.ts
 // Variable: informationQuery
 // Query: *[_type == "information"][0] {		_id,		_type,		titleImage-> {			image {				...,				asset->{					...,					metadata{						blurHash,						dimensions					}				}			}		},		biography,		impressum	}
 export type InformationQueryResult = {
@@ -467,6 +510,8 @@ declare global {
     "\n\t*[_type == \"series\"] | order(order desc) {\n\t\t_id,\n\t\tslug,\n\t\ttitle,\n\t\torder\n\t}\n": SeriesListQueryResult;
     "\n\t*[_type == \"series\" && slug.current == $slug][0] {\n\t\t_id,\n\t\tslug,\n\t\ttitle,\n\t\torder,\n\t\tworks[]-> | order(date desc) {\n\t\t\t_id,\n\t\t\tslug,\n\t\t\ttitle,\n\t\t\timage {\n\t\t\t\thotspot,\n\t\t\t\tcrop,\n\t\t\t\tasset->{\n\t\t\t\t\t_id,\n\t\t\t\t\tmetadata {\n\t\t\t\t\t\tblurHash,\n\t\t\t\t\t\tdimensions {\n\t\t\t\t\t\t\twidth,\n\t\t\t\t\t\t\theight,\n\t\t\t\t\t\t\taspectRatio\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t},\n\t\t\tdate,\n\t\t\tsize,\n\t\t\tmedium-> {\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n": SeriesBySlugQueryResult;
     "\n\t*[_type == \"work\"] | order(date desc) {\n\t\t_id,\n\t\tslug,\n\t\ttitle,\n\t\timage {\n\t\t\thotspot,\n\t\t\tcrop,\n\t\t\tasset->{\n\t\t\t\t_id,\n\t\t\t\tmetadata {\n\t\t\t\t\tblurHash,\n\t\t\t\t\tdimensions {\n\t\t\t\t\t\twidth,\n\t\t\t\t\t\theight,\n\t\t\t\t\t\taspectRatio\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\tdate,\n\t\tsize,\n\t\t\"series\": *[_type == \"series\" && references(^._id)] {\n\t\t\tslug\n\t\t},\n\t\tmedium-> {\n\t\t\tname\n\t\t}\n\t}\n": WorksQueryResult;
+    "\n\t*[_type == \"news\"][0].works[]._ref\n": NewsWorkIdsQueryResult;
+    "\n\t*[_type == \"news\"][0].events[]-> {\n\t\t_id,\n\t\ttitle,\n\t\tstartDate,\n\t\tendDate,\n\t\tvenue { name, city },\n\t\tposter {\n\t\t\talt,\n\t\t\thotspot,\n\t\t\tcrop,\n\t\t\tasset->{\n\t\t\t\t_id,\n\t\t\t\tmetadata { blurHash, dimensions { width, height, aspectRatio } }\n\t\t\t}\n\t\t}\n\t}\n": NewsEventsQueryResult;
     "\n\t*[_type == \"information\"][0] {\n\t\t_id,\n\t\t_type,\n\t\ttitleImage-> {\n\t\t\timage {\n\t\t\t\t...,\n\t\t\t\tasset->{\n\t\t\t\t\t...,\n\t\t\t\t\tmetadata{\n\t\t\t\t\t\tblurHash,\n\t\t\t\t\t\tdimensions\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\tbiography,\n\t\timpressum\n\t}\n": InformationQueryResult;
     "\n\t*[_type == \"series\" && defined(slug.current)].slug.current\n": SeriesSlugsQueryResult;
   }

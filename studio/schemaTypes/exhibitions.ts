@@ -71,6 +71,23 @@ export default {
       validation: (Rule: any) => Rule.required(),
     },
     {
+      name: 'poster',
+      title: 'Poster',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+      fields: [
+        {
+          name: 'alt',
+          title: 'Alternative Text',
+          type: 'internationalizedArrayString',
+          description: 'Important for accessibility and SEO',
+        },
+      ],
+      validation: (Rule: any) => Rule.required(),
+    },
+    {
       name: 'photos',
       title: 'Photos',
       type: 'array',
