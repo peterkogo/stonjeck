@@ -61,7 +61,7 @@
 		style:--gap="15px"
 		style:--precision={100}
 		style:margin="calc(-1 * var(--gap, 0) / 2)"
-		style:grid-template-columns="repeat(auto-fill, minmax(var(--frame-width), 1fr))"
+		style:grid-template-columns="repeat(auto-fill, minmax(min(100%, var(--frame-width)), 1fr))"
 	>
 		<div
 			class="bg-background pt-5 lg:pt-8"
@@ -85,7 +85,7 @@
 		style:--gap="15px"
 		style:--precision={100}
 		style:margin="calc(-1 * var(--gap, 0) / 2)"
-		style:grid-template-columns="repeat(auto-fill, minmax(var(--frame-width), 1fr))"
+		style:grid-template-columns="repeat(auto-fill, minmax(min(100%, var(--frame-width)), 1fr))"
 	>
 		{#each filteredWorks as work (work._id)}
 			{@const dimensions = work.image?.asset?.metadata?.dimensions ?? {

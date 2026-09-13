@@ -22,6 +22,27 @@ export type WorkReference = {
   [internalGroqTypeReferenceTo]?: "work";
 };
 
+export type ExhibitionsReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "exhibitions";
+};
+
+export type News = {
+  _id: string;
+  _type: "news";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  works?: Array<{
+    _key: string;
+  } & WorkReference>;
+  events?: Array<{
+    _key: string;
+  } & ExhibitionsReference>;
+};
+
 export type Information = {
   _id: string;
   _type: "information";
@@ -181,6 +202,8 @@ export type Tag = {
   _updatedAt: string;
   _rev: string;
   name?: InternationalizedArrayString;
+  slug?: Slug;
+  group?: string;
 };
 
 export type Medium = {
@@ -294,7 +317,7 @@ export type SanityImageAsset = {
   source?: SanityAssetSourceData;
 };
 
-export type AllSanitySchemaTypes = WorkReference | Information | InternationalizedArrayText | SanityImageAssetReference | Exhibitions | InternationalizedArrayString | SanityImageCrop | SanityImageHotspot | Geopoint | Slug | TagReference | MediumReference | Work | Series | Tag | Medium | InternationalizedArrayTextValue | InternationalizedArrayStringValue | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset;
+export type AllSanitySchemaTypes = WorkReference | ExhibitionsReference | News | Information | InternationalizedArrayText | SanityImageAssetReference | Exhibitions | InternationalizedArrayString | SanityImageCrop | SanityImageHotspot | Geopoint | Slug | TagReference | MediumReference | Work | Series | Tag | Medium | InternationalizedArrayTextValue | InternationalizedArrayStringValue | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset;
 
 // Source: ../app/src/lib/data.remote.ts
 // Variable: seriesListQuery
@@ -439,8 +462,7 @@ export type InformationQueryResult = {
 export type SeriesSlugsQueryResult = Array<string | null>;
 
 // Query TypeMap
-import "@sanity/client";
-declare module "@sanity/client" {
+declare global {
   interface SanityQueries {
     "\n\t*[_type == \"series\"] | order(order desc) {\n\t\t_id,\n\t\tslug,\n\t\ttitle,\n\t\torder\n\t}\n": SeriesListQueryResult;
     "\n\t*[_type == \"series\" && slug.current == $slug][0] {\n\t\t_id,\n\t\tslug,\n\t\ttitle,\n\t\torder,\n\t\tworks[]-> | order(date desc) {\n\t\t\t_id,\n\t\t\tslug,\n\t\t\ttitle,\n\t\t\timage {\n\t\t\t\thotspot,\n\t\t\t\tcrop,\n\t\t\t\tasset->{\n\t\t\t\t\t_id,\n\t\t\t\t\tmetadata {\n\t\t\t\t\t\tblurHash,\n\t\t\t\t\t\tdimensions {\n\t\t\t\t\t\t\twidth,\n\t\t\t\t\t\t\theight,\n\t\t\t\t\t\t\taspectRatio\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t},\n\t\t\tdate,\n\t\t\tsize,\n\t\t\tmedium-> {\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n": SeriesBySlugQueryResult;
@@ -448,5 +470,9 @@ declare module "@sanity/client" {
     "\n\t*[_type == \"information\"][0] {\n\t\t_id,\n\t\t_type,\n\t\ttitleImage-> {\n\t\t\timage {\n\t\t\t\t...,\n\t\t\t\tasset->{\n\t\t\t\t\t...,\n\t\t\t\t\tmetadata{\n\t\t\t\t\t\tblurHash,\n\t\t\t\t\t\tdimensions\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\tbiography,\n\t\timpressum\n\t}\n": InformationQueryResult;
     "\n\t*[_type == \"series\" && defined(slug.current)].slug.current\n": SeriesSlugsQueryResult;
   }
+}
+// Lets @sanity/client releases that predate the global registry read it too
+declare module "@sanity/client" {
+  interface SanityQueries extends globalThis.SanityQueries {}
 }
 

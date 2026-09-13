@@ -19,11 +19,13 @@
 </script>
 
 <div
-	class="text-brown flex h-screen w-full flex-col items-center justify-center pt-15 sm:p-15"
+	class="text-brown flex min-h-dvh w-full flex-col items-center justify-center px-5 py-12 lg:p-15"
 >
-	<div class="flex w-full items-center justify-center max-sm:flex-col">
+	<div class="flex w-full items-center justify-center max-lg:flex-col">
 		<div
-			class="relative w-58 pt-5 max-sm:my-10 max-sm:w-68"
+			class="relative w-full max-w-58 shrink-0 max-lg:mb-8"
+			style:aspect-ratio={information.titleImage?.image?.asset?.metadata?.dimensions
+				?.aspectRatio ?? 0.8}
 			in:fade={{ delay: 200, easing, duration: 350 }}
 		>
 			{#if information.titleImage?.image}
@@ -33,14 +35,14 @@
 				/>
 			{/if}
 		</div>
-		<div class="flex w-86 flex-col px-8 max-sm:w-68 max-sm:items-center max-sm:p-4">
-			<div class="mb-3 max-w-48 max-sm:max-w-68"><KarimStonjeck class="text-brown" /></div>
+		<div class="flex w-full max-w-86 flex-col lg:px-8">
+			<div class="mb-3 max-w-48 max-lg:max-w-68"><KarimStonjeck class="text-brown" /></div>
 			<div class=" text-[0.8rem] leading-relaxed" in:fade={{ delay: 350, easing }}>
 				<Lang text={biography} html />
 			</div>
 		</div>
 	</div>
-	<div class="mt-10 flex w-full max-w-142 max-sm:max-w-62">
+	<div class="mt-10 flex w-full max-w-142 max-lg:max-w-86">
 		<h2 class="text-2xl"><Lang text={multilang('Ausstellungen', 'Exhibitions')} /></h2>
 	</div>
 </div>
