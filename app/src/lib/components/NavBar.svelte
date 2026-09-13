@@ -122,7 +122,7 @@
 <svelte:window onscroll={updateSection} onresize={updateSection} />
 
 <aside
-	class="bg-background fixed inset-y-0 left-0 z-20 hidden w-[var(--site-sidebar-width)] flex-col overflow-y-auto py-5 pl-2 sm:py-8 sm:pl-4 md:flex"
+	class="sidebar bg-background fixed inset-y-0 left-0 z-20 hidden flex-col overflow-y-auto py-5 pl-2 sm:py-8 sm:pl-4 md:flex"
 >
 	<a
 		class=" mt-1 inline-block text-right text-2xl leading-[1.3] font-medium tracking-[-0.035em] whitespace-nowrap focus-visible:outline focus-visible:outline-offset-[5px] focus-visible:outline-current"
@@ -200,9 +200,15 @@
 </aside>
 
 <style>
+	.sidebar {
+		/* Keep the content edge fixed, with room for the rule beyond it. */
+		width: calc(var(--site-sidebar-width) + 1rem);
+		padding-right: 1rem;
+	}
+
 	.nav-link {
 		display: block;
-		padding: 0.5rem 0.75rem 0.5rem 0;
+		padding: 0.5rem 0;
 		color: var(--muted-foreground);
 		transition: color 150ms ease;
 	}
@@ -231,7 +237,7 @@
 
 	.section-track {
 		position: absolute;
-		inset: 0 0 0 auto;
+		inset: 0 -0.75rem 0 auto;
 		width: 1px;
 		background: color-mix(in oklch, var(--foreground) 15%, transparent);
 	}

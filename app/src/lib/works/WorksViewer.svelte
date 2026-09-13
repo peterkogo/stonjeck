@@ -205,13 +205,14 @@
 		{@const aspectRatio = work.image?.asset?.metadata?.dimensions?.aspectRatio ?? 1}
 		<section
 			id={work.slug?.current}
-			class="relative flex h-dvh snap-start snap-always lg:p-16"
+			class="work-section relative flex h-dvh snap-start snap-always lg:p-16"
+			style:--work-aspect-ratio={aspectRatio}
 			data-index={index}
 			aria-label={pick(work.title, 'en') || pick(work.title, 'de') || undefined}
 		>
 			<div class="flex min-h-0 min-w-0 flex-1 items-center justify-center">
 				<div
-					class="flex min-h-0 w-full max-w-full flex-col gap-0 p-8 lg:grid lg:grid-cols-[minmax(0,1fr)_12rem] lg:items-stretch lg:gap-x-8 lg:gap-y-0 lg:p-0"
+					class="flex h-full min-h-0 w-full max-w-full flex-col gap-0 p-8 lg:grid lg:h-auto lg:grid-cols-[minmax(0,1fr)_12rem] lg:items-stretch lg:gap-x-8 lg:gap-y-0 lg:p-0"
 				>
 					<div
 						class="flex min-h-0 min-w-0 flex-1 flex-col items-center justify-center self-stretch lg:h-full lg:w-full lg:max-w-full lg:flex-none"
@@ -222,9 +223,9 @@
 							imageWidth={1600}
 							width="min(100cqw, calc(100cqh * {aspectRatio}))"
 							height="min(100cqh, calc(100cqw / {aspectRatio}))"
-							containerHeight="calc(100dvh - var(--spacing) * 32)"
+							containerHeight="var(--work-image-height)"
 						/>
-						<div class="text-l mt-2 w-full text-center align-middle lg:hidden">
+						<div class="text-l mt-6 w-full shrink-0 text-center align-middle lg:hidden">
 							<span class="text-l font-semibold text-gray-800">
 								<Lang text={work.title} /> •
 							</span>
@@ -237,7 +238,7 @@
 						</div>
 					</div>
 					<div
-						class="sticky top-12 hidden w-full shrink-0 self-start lg:block"
+						class="sticky top-16 hidden w-full shrink-0 self-start lg:block"
 						style:height="fit-content"
 					>
 						<div class="w-full space-y-1 text-right">
@@ -259,3 +260,21 @@
 		</section>
 	{/each}
 </div>
+
+<style>
+	.work-section {
+		/* Center the rendered image and caption together, including wide works. */
+		--work-image-height: min(
+			calc(100dvh - var(--spacing) * 32),
+			calc(
+				(100vw - var(--site-sidebar-width) - var(--spacing) * 16) / var(--work-aspect-ratio)
+			)
+		);
+	}
+
+	@media (min-width: 64rem) {
+		.work-section {
+			--work-image-height: calc(100dvh - var(--spacing) * 32);
+		}
+	}
+</style>

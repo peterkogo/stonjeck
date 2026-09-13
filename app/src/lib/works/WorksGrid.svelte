@@ -46,10 +46,22 @@
 
 	let transitionWorkId = $state<string | undefined>(initialTransitionWorkId());
 
-	afterNavigate(({ type }) => {
-		// Keep SvelteKit's restored scroll position when going back or forward.
-		if (type === 'popstate') return;
+	afterNavigate(({ type, from }) => {
+		// Returning from the viewer follows the last viewed work, which may
+		// differ from the work originally opened in this history entry.
+		// Other back/forward navigation keeps SvelteKit's restored position.
+		if (type === 'popstate' && from?.route.id !== '/works/[[slug]]') return;
 		if (!transitionWorkId || ['#news', '#works'].includes(window.location.hash)) return;
+
+		// A filtered overview starts at Works so the filter controls stay visible,
+		// even when the last viewed work is no longer among the filtered results.
+		if (parseFilterQuery(page.url.searchParams.get('filter')).length > 0) {
+			document.getElementById('works')?.scrollIntoView({
+				block: 'start',
+				behavior: 'instant'
+			});
+			return;
+		}
 
 		const slug = works.find((work) => work._id === transitionWorkId)?.slug?.current;
 		if (!slug) return;
