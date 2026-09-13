@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { resolve } from '$app/paths';
 	import { afterNavigate, goto, replaceState } from '$app/navigation';
 	import { onDestroy } from 'svelte';
@@ -16,7 +17,7 @@
 	let { tags, tagIndex }: { tags: TagsQueryResult; tagIndex: TagIndex } = $props();
 
 	const hasFilters = $derived(
-		parseFilterQuery(page.url.searchParams.get('filter')).length > 0
+		browser && parseFilterQuery(page.url.searchParams.get('filter')).length > 0
 	);
 	const isAbout = $derived(page.route.id === '/about');
 	let mobileFiltersVisible = $state(false);
