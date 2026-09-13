@@ -34,7 +34,7 @@ export default {
     select: {
       title: 'name',
     },
-    prepare(selection: {title: InternationalizedArrayItem<string>[]}) {
+    prepare(selection: {title?: InternationalizedArrayItem<string>[]}) {
       const {title} = selection
       // Get the German version if available, otherwise fall back to English
       const germanTitle = title?.find((item) => item.language === 'de')?.value
