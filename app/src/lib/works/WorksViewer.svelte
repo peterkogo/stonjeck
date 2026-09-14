@@ -169,7 +169,7 @@
 	function updateCurrentIndex() {
 		if (!scrollReady || !wrapper) return;
 
-		// Measure the rendered sections: dvh, viewport rounding and layout offsets
+		// Measure the rendered sections: svh, viewport rounding and layout offsets
 		// need not agree with window.innerHeight.
 		const sections = wrapper.querySelectorAll<HTMLElement>('[data-index]');
 		let closestIndex = -1;
@@ -208,7 +208,7 @@
 		{@const aspectRatio = work.image?.asset?.metadata?.dimensions?.aspectRatio ?? 1}
 		<section
 			id={work.slug?.current}
-			class="work-section relative flex h-dvh snap-start snap-always lg:p-16"
+			class="work-section relative flex h-svh snap-start snap-always lg:p-16"
 			style:--work-aspect-ratio={aspectRatio}
 			data-index={index}
 			aria-label={pick(work.title, 'en') || pick(work.title, 'de') || undefined}
@@ -267,9 +267,10 @@
 <style>
 	.work-section {
 		--work-inline-padding: 18px;
+		/* Keep snap positions and image sizing stable as mobile browser bars move. */
 		/* Center the rendered image and caption together, including wide works. */
 		--work-image-height: min(
-			calc(100dvh - var(--spacing) * 32),
+			calc(100svh - var(--spacing) * 32),
 			calc(
 				(100vw - var(--site-sidebar-width) - var(--work-inline-padding) * 2) /
 					var(--work-aspect-ratio)
@@ -285,7 +286,7 @@
 
 	@media (min-width: 64rem) {
 		.work-section {
-			--work-image-height: calc(100dvh - var(--spacing) * 32);
+			--work-image-height: calc(100svh - var(--spacing) * 32);
 		}
 	}
 </style>

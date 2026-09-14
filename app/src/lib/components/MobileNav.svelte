@@ -69,7 +69,7 @@
 	class="mobile-nav"
 	class:open={open && !showBack}
 	class:with-filters={showFilters && !showBack}
-	style:height={open && !showBack ? `${contentHeight + 68}px` : '3.5rem'}
+	style:height={open && !showBack ? `${contentHeight + 60}px` : '3rem'}
 	bind:this={container}
 	onfocusout={(event) => {
 		if (event.relatedTarget instanceof Node && !container.contains(event.relatedTarget))
@@ -182,16 +182,16 @@
 		--menu-width: min(13rem, calc(100vw - 2rem));
 		position: fixed;
 		z-index: 50;
-		right: max(22px, env(safe-area-inset-right));
-		bottom: max(1rem, env(safe-area-inset-bottom));
-		width: 3.5rem;
-		height: 3.5rem;
+		right: max(34px, env(safe-area-inset-right));
+		bottom: max(6px, calc(env(safe-area-inset-bottom) - 1rem + 6px));
+		width: 3rem;
+		height: 3rem;
 		overflow: hidden;
 		border: 1px solid color-mix(in oklch, var(--foreground) 10%, transparent);
-		border-radius: 1.75rem;
-		background: color-mix(in oklch, var(--background) 80%, transparent);
-		-webkit-backdrop-filter: blur(12px);
-		backdrop-filter: blur(12px);
+		border-radius: 1.5rem;
+		background: color-mix(in oklch, white 65%, transparent);
+		-webkit-backdrop-filter: blur(8px);
+		backdrop-filter: blur(8px);
 		box-shadow: 0 4px 24px rgb(0 0 0 / 10%);
 		transition:
 			width 280ms cubic-bezier(0.2, 0, 0, 1),
@@ -205,7 +205,7 @@
 	.mobile-nav.with-filters {
 		--menu-width: min(
 			22rem,
-			calc(100vw - 44px - env(safe-area-inset-left) - env(safe-area-inset-right))
+			calc(100vw - 68px - env(safe-area-inset-left) - env(safe-area-inset-right))
 		);
 		width: 9.5rem;
 	}
@@ -272,9 +272,9 @@
 		bottom: 0;
 		display: grid;
 		place-items: center;
-		width: 3.5rem;
-		height: 3.5rem;
-		border-radius: 1.75rem;
+		width: calc(3rem - 2px);
+		height: calc(3rem - 2px);
+		border-radius: 1.5rem;
 		cursor: pointer;
 	}
 
@@ -290,9 +290,11 @@
 
 	.hamburger {
 		position: absolute;
-		right: calc((3.5rem - 20px) / 2);
+		top: 50%;
+		right: calc((3rem - 2px - 20px) / 2);
+		transform: translateY(-50%) scale(0.9);
 		width: 20px;
-		height: 16px;
+		height: 15.5px;
 	}
 	.hamburger span {
 		position: absolute;
@@ -366,7 +368,7 @@
 	.reset {
 		position: absolute;
 		bottom: 0;
-		height: 3.5rem;
+		height: 3rem;
 		padding: 0 0.875rem;
 		border-radius: 0.75rem;
 		color: var(--foreground);
@@ -382,7 +384,7 @@
 		left: 0.75rem;
 	}
 	.reset {
-		right: 3.5rem;
+		right: 3rem;
 		padding: 0 0.25rem;
 	}
 	.reset:disabled {

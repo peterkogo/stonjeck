@@ -21,7 +21,7 @@
 
 	main {
 		min-width: 0;
-		min-height: 100dvh;
+		min-height: 100svh;
 		margin-left: var(--site-sidebar-width);
 	}
 
