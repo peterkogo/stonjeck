@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Bowser from 'bowser';
+	import { onMount } from 'svelte';
 	import FilterTags from '$lib/works/FilterTags.svelte';
 	import type { TagsQueryResult } from '../../sanity.types';
 	import type { TagIndex } from '$lib/works/tag-index';
@@ -32,6 +34,11 @@
 	let contentHeight = $state(0);
 	let container: HTMLDivElement;
 	let toggle = $state<HTMLButtonElement>();
+	let useNonIosPosition = $state(false);
+
+	onMount(() => {
+		useNonIosPosition = Bowser.getParser(navigator.userAgent).getOSName() !== 'iOS';
+	});
 
 	function resetFilters() {
 		const url = new URL(page.url);
@@ -67,6 +74,7 @@
 
 <div
 	class="mobile-nav"
+	class:non-ios={useNonIosPosition}
 	class:open={open && !showBack}
 	class:with-filters={showFilters && !showBack}
 	style:height={open && !showBack ? `${contentHeight + 60}px` : '3rem'}
@@ -196,6 +204,11 @@
 		transition:
 			width 280ms cubic-bezier(0.2, 0, 0, 1),
 			height 280ms cubic-bezier(0.2, 0, 0, 1);
+	}
+
+	.mobile-nav.non-ios {
+		right: max(26px, env(safe-area-inset-right));
+		bottom: max(14px, calc(env(safe-area-inset-bottom) - 1rem + 14px));
 	}
 
 	.mobile-nav.open {

@@ -44,6 +44,7 @@
 		"@sanity/client": "^8.6.1",
 		"@sanity/image-url": "^2.1.1",
 		"@sveltejs/adapter-netlify": "^6.0.4",
+		"bowser": "^2.14.1",
 		"groq": "^6.13.2"
 	}
 }

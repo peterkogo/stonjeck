@@ -3,7 +3,7 @@
 	import type { NewsEventsQueryResult, WorksQueryResult } from '../../sanity.types';
 	import ExhibitionCard from './ExhibitionCard.svelte';
 	import { matchesTagFilters, parseFilterQuery } from './filter-tags.svelte';
-	import { page } from '$app/state';
+	import { navigating, page } from '$app/state';
 	import { getTags } from '$lib/data.remote';
 	import { getLocale, localizeHref } from '$lib/paraglide/runtime';
 	import { pick } from '$lib/lang';
@@ -11,6 +11,8 @@
 	import SanityImage from '$lib/components/SanityImage.svelte';
 	import { browser } from '$app/env';
 	import { afterNavigate } from '$app/navigation';
+	import { onMount } from 'svelte';
+	import type { AfterNavigate, Navigation } from '@sveltejs/kit';
 
 	const tags = await getTags();
 
@@ -46,7 +48,12 @@
 
 	let transitionWorkId = $state<string | undefined>(initialTransitionWorkId());
 
-	afterNavigate(({ type, from }) => {
+	function restoreViewedWork({
+		type,
+		from,
+		to
+	}: Pick<Navigation | AfterNavigate, 'type' | 'from' | 'to'>) {
+		if (to?.route.id !== '/') return;
 		// Returning from the viewer follows the last viewed work, which may
 		// differ from the work originally opened in this history entry.
 		// Other back/forward navigation keeps SvelteKit's restored position.
@@ -67,7 +74,18 @@
 				behavior: 'instant'
 			});
 		}
+	}
+
+	onMount(() => {
+		if (!navigating.to) return;
+		// Restore as soon as the grid mounts, before its first paint. Kit's
+		// afterNavigate runs later and can expose the viewer's scroll offset.
+		restoreViewedWork(navigating);
 	});
+
+	// Reapply after Kit restores history, without disabling its scroll handling
+	// for subsequent navigation into the viewer.
+	afterNavigate(restoreViewedWork);
 </script>
 
 <div
