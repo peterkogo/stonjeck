@@ -145,7 +145,7 @@
 
 		.mobile-biography {
 			display: contents;
-			font-size: 0.8125rem;
+			font-size: 1rem;
 			line-height: 1.65;
 			white-space: pre-line;
 			overflow-wrap: anywhere;
@@ -177,7 +177,7 @@
 		.biography-entry dt {
 			padding-top: 0.125rem;
 			color: var(--muted-foreground);
-			font-size: 0.6875rem;
+			font-size: 0.875rem;
 			letter-spacing: 0.025em;
 		}
 	}

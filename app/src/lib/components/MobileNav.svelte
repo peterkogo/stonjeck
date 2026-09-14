@@ -207,7 +207,7 @@
 	}
 
 	.mobile-nav.non-ios {
-		right: max(26px, env(safe-area-inset-right));
+		right: max(22px, env(safe-area-inset-right));
 		bottom: max(14px, calc(env(safe-area-inset-bottom) - 1rem + 14px));
 	}
 
@@ -304,15 +304,15 @@
 	.hamburger {
 		position: absolute;
 		top: 50%;
-		right: calc((3rem - 2px - 20px) / 2);
-		transform: translateY(-50%) scale(0.9);
-		width: 20px;
-		height: 15.5px;
+		right: calc((3rem - 2px - 18px) / 2);
+		transform: translateY(-50%);
+		width: 18px;
+		height: 14px;
 	}
 	.hamburger span {
 		position: absolute;
 		left: 0;
-		width: 20px;
+		width: 18px;
 		height: 1.5px;
 		border-radius: 1px;
 		background: currentColor;
@@ -324,19 +324,19 @@
 		top: 0;
 	}
 	.hamburger span:nth-child(2) {
-		top: 7px;
+		top: 6px;
 	}
 	.hamburger span:nth-child(3) {
-		top: 14px;
+		top: 12px;
 	}
 	.open .hamburger span:nth-child(1) {
-		transform: translateY(7px) rotate(45deg);
+		transform: translateY(6px) rotate(45deg);
 	}
 	.open .hamburger span:nth-child(2) {
 		opacity: 0;
 	}
 	.open .hamburger span:nth-child(3) {
-		transform: translateY(-7px) rotate(-45deg);
+		transform: translateY(-6px) rotate(-45deg);
 	}
 
 	nav {
