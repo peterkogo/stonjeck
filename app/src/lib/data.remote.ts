@@ -29,7 +29,7 @@ const worksQuery = defineQuery(`
 			asset->{
 				_id,
 				metadata {
-					blurHash,
+					lqip,
 					dimensions {
 						width,
 						height,
@@ -68,7 +68,7 @@ const newsEventsQuery = defineQuery(`
 			crop,
 			asset->{
 				_id,
-				metadata { blurHash, dimensions { width, height, aspectRatio } }
+				metadata { lqip, dimensions { width, height, aspectRatio } }
 			}
 		}
 	}
@@ -84,7 +84,7 @@ const informationQuery = defineQuery(`
 				asset->{
 					...,
 					metadata{
-						blurHash,
+						lqip,
 						dimensions
 					}
 				}

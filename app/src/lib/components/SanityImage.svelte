@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
-	import { decode } from 'blurhash';
 
 	import { urlFor } from '$lib/sanity/client';
 	import type { SanityImageCrop, SanityImageHotspot } from '../../sanity.types';
@@ -13,7 +12,7 @@
 		asset?: {
 			_id: string;
 			metadata?: {
-				blurHash?: string | null;
+				lqip?: string | null;
 				dimensions?: {
 					width?: number | null;
 					height?: number | null;
@@ -43,9 +42,9 @@
 		viewTransitionName?: string;
 	} = $props();
 
-	let mounted = $state(false);
-	let onLoadFired = $state(false);
-	let blurHashCanvas = $state<HTMLCanvasElement | undefined>(undefined);
+	let loadedSrc = $state<string | undefined>(undefined);
+	const imageSrc = $derived(createImageUrl(imageWidth));
+	const lqip = $derived(image?.asset?.metadata?.lqip);
 	let imageRef = $state<HTMLImageElement | undefined>(undefined);
 
 	// Create URL builder with hotspot support
@@ -58,35 +57,13 @@
 		return builder.url();
 	}
 
-	function renderBlurHash() {
-		const blurHash = image?.asset?.metadata?.blurHash;
-		if (!blurHash || !blurHashCanvas) return;
-
-		const canvas = blurHashCanvas;
-		const ctx = canvas.getContext('2d');
-		if (!ctx) return;
-
-		const blurWidth = 32;
-		const blurHeight = 32;
-
-		try {
-			const pixels = decode(blurHash, blurWidth, blurHeight);
-			const imageData = ctx.createImageData(blurWidth, blurHeight);
-			imageData.data.set(pixels);
-			ctx.putImageData(imageData, 0, 0);
-		} catch (error) {
-			console.warn('Failed to decode blurhash:', error);
-		}
-	}
-
 	function onload() {
-		onLoadFired = true;
+		loadedSrc = imageSrc;
 	}
 
 	onMount(() => {
-		if (blurHashCanvas && !imageRef?.complete) {
-			renderBlurHash();
-			mounted = true;
+		if (imageRef?.complete && imageRef.naturalWidth > 0) {
+			loadedSrc = imageSrc;
 		}
 	});
 </script>
@@ -108,17 +85,17 @@
 			class="absolute inset-0 m-auto"
 			bind:this={imageRef}
 			loading="lazy"
-			src={createImageUrl(imageWidth)}
+			src={imageSrc}
 			{onload}
 		/>
-		{#if (!onLoadFired && !imageRef?.complete) || (mounted && !onLoadFired)}
-			<canvas
+		{#if lqip && loadedSrc !== imageSrc}
+			<img
 				out:fade={{ duration: 500 }}
-				bind:this={blurHashCanvas}
-				width="32"
-				height="32"
-				class="absolute inset-0 size-full object-cover"
-			></canvas>
+				src={lqip}
+				alt=""
+				aria-hidden="true"
+				class="pointer-events-none absolute inset-0 size-full object-cover"
+			/>
 		{/if}
 	</div>
 </div>

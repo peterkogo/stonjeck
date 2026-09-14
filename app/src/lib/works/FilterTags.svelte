@@ -28,14 +28,19 @@
 		return [...grouped.entries()];
 	});
 
-	function setFilters(filters: string[]) {
+	async function setFilters(filters: string[]) {
 		const url = new URL(page.url);
 		const query = stringifyFilterQuery(filters);
 		if (query) url.searchParams.set('filter', query);
 		else url.searchParams.delete('filter');
 		// The URL is cloned from the already resolved current page.
 		// eslint-disable-next-line svelte/no-navigation-without-resolve
-		void goto(url, { replaceState: true, noScroll: true, keepFocus: true });
+		await goto(url, { replaceState: true, noScroll: true, keepFocus: true });
+		// Align after the filtered grid and navigation scroll handling have settled.
+		document.getElementById('works')?.scrollIntoView({
+			block: 'start',
+			behavior: 'instant'
+		});
 	}
 
 	function toggle(slug: string) {
