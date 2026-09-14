@@ -251,6 +251,9 @@
 
 	.back-link {
 		display: flex;
+		color: var(--foreground);
+		text-decoration: underline;
+		text-underline-offset: 0.3em;
 		cursor: pointer;
 		align-items: center;
 		gap: 0.375rem;
