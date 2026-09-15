@@ -33,6 +33,7 @@
 	let open = $state(false);
 	let contentHeight = $state(0);
 	let container: HTMLDivElement;
+	let backdrop = $state<HTMLButtonElement>();
 	let toggle = $state<HTMLButtonElement>();
 	let useNonIosPosition = $state(false);
 
@@ -59,9 +60,6 @@
 </script>
 
 <svelte:window
-	onpointerdown={(event) => {
-		if (open && event.target instanceof Node && !container.contains(event.target)) close();
-	}}
 	onkeydown={(event) => {
 		if (open && event.key === 'Escape') close(true);
 	}}
@@ -72,6 +70,18 @@
 	}}
 />
 
+{#if open && !showBack}
+	<!-- Catch outside taps without locking the page's native scrolling. -->
+	<button
+		bind:this={backdrop}
+		class="menu-backdrop"
+		type="button"
+		tabindex="-1"
+		aria-label={getLocale() === 'de' ? 'Menü schließen' : 'Close menu'}
+		onclick={() => close(true)}
+	></button>
+{/if}
+
 <div
 	class="mobile-nav"
 	class:non-ios={useNonIosPosition}
@@ -80,7 +90,11 @@
 	style:height={open && !showBack ? `${contentHeight + 60}px` : '3rem'}
 	bind:this={container}
 	onfocusout={(event) => {
-		if (event.relatedTarget instanceof Node && !container.contains(event.relatedTarget))
+		if (
+			event.relatedTarget instanceof Node &&
+			event.relatedTarget !== backdrop &&
+			!container.contains(event.relatedTarget)
+		)
 			close();
 	}}
 >
@@ -186,6 +200,15 @@
 </div>
 
 <style>
+	.menu-backdrop {
+		position: fixed;
+		inset: 0;
+		z-index: 49;
+		border: 0;
+		background: transparent;
+		touch-action: auto;
+	}
+
 	.mobile-nav {
 		--menu-width: min(13rem, calc(100vw - 2rem));
 		position: fixed;
@@ -410,6 +433,7 @@
 		outline-offset: -4px;
 	}
 	@media (min-width: 48rem) {
+		.menu-backdrop,
 		.mobile-nav {
 			display: none;
 		}
