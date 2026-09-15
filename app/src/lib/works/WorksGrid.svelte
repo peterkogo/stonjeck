@@ -63,13 +63,18 @@
 		const slug = works.find((work) => work._id === transitionWorkId)?.slug?.current;
 		if (!slug) return;
 
-		// Restore the viewed work even in a filtered overview. Only fall back
-		// to the section start when the filters exclude that work.
+		// Center the viewed work, but never scroll above the filter alignment.
 		const target = document.getElementById(slug);
+		const section = document.getElementById('works');
 		if (target) {
 			target.scrollIntoView({ block: 'center', behavior: 'instant' });
-		} else {
-			document.getElementById('works')?.scrollIntoView({
+		}
+		// Use the section's responsive scroll margin, just as filters do.
+		const sectionMargin = section
+			? parseFloat(getComputedStyle(section).scrollMarginTop) || 0
+			: 0;
+		if (section && (!target || section.getBoundingClientRect().top > sectionMargin)) {
+			section.scrollIntoView({
 				block: 'start',
 				behavior: 'instant'
 			});

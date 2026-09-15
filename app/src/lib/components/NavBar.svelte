@@ -47,12 +47,8 @@
 	}
 
 	function navigateBack() {
-		if (window.history.length > 1) {
-			window.history.back();
-		} else {
-			// Direct visits have no previous entry; the grid restores the last viewed work.
-			void goto(resolve(localizeHref(resolve('/')) as '/'));
-		}
+		// Always return to the overview; the grid restores the last viewed work.
+		void goto(resolve(localizeHref(resolve('/')) as '/'));
 	}
 
 	async function navigateToSection(event: MouseEvent, section: 'news' | 'works') {

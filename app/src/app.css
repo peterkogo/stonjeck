@@ -123,6 +123,11 @@
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		/* Reserve scrollbar space before the single-work gallery expands. */
+		scrollbar-gutter: stable;
+		scrollbar-color: var(--muted-foreground) transparent;
+	}
 	html,
 	body {
 		width: 100%;
