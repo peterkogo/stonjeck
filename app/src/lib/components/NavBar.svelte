@@ -33,6 +33,34 @@
 	const indicatorSection = $derived(page.route.id === '/' ? visibleSections : activeSection);
 	let resizeObserver: ResizeObserver | undefined;
 	let navigationFrame: number | undefined;
+	let sectionLayout:
+		| {
+				news?: { top: number; height: number };
+				works: { top: number; height: number };
+				pageHeight: number;
+		  }
+		| undefined;
+
+	function measureSections() {
+		if (page.route.id !== '/') return;
+		const news = document.getElementById('news');
+		const works = document.getElementById('works');
+		if (!works) return;
+
+		// ResizeObserver runs after layout. Cache document coordinates here so
+		// scrolling only reads the scroll position, without measuring the grid.
+		const newsBounds = news?.getBoundingClientRect();
+		const worksBounds = works.getBoundingClientRect();
+		const scrollY = window.scrollY;
+		sectionLayout = {
+			news: newsBounds
+				? { top: newsBounds.top + scrollY, height: newsBounds.height }
+				: undefined,
+			works: { top: worksBounds.top + scrollY, height: worksBounds.height },
+			pageHeight: document.documentElement.scrollHeight
+		};
+		updateSection();
+	}
 
 	function clearSectionHash() {
 		if (page.route.id !== '/' || !['#work', '#works', '#news'].includes(page.url.hash)) return;
@@ -77,44 +105,37 @@
 	}
 
 	function updateSection() {
-		if (page.route.id !== '/') return;
-		const news = document.getElementById('news');
-		const works = document.getElementById('works');
-		if (!works) return;
-
-		const newsBounds = news?.getBoundingClientRect();
-		const worksBounds = works.getBoundingClientRect();
+		if (page.route.id !== '/' || !sectionLayout) return;
+		const { news, works, pageHeight } = sectionLayout;
+		const scrollY = window.scrollY;
+		const viewportHeight = window.innerHeight;
+		const newsBottom = news ? news.top + news.height - scrollY : 0;
+		const worksTop = works.top - scrollY;
 		const newsVisible =
-			newsBounds &&
-			newsBounds.height > 0 &&
-			newsBounds.bottom > 0 &&
-			newsBounds.top < window.innerHeight;
+			news && news.height > 0 && newsBottom > 0 && news.top - scrollY < viewportHeight;
 		const worksVisible =
-			worksBounds.height > 0 && worksBounds.bottom > 0 && worksBounds.top < window.innerHeight;
+			works.height > 0 && worksTop + works.height > 0 && worksTop < viewportHeight;
 		// Reveal mobile filters one tenth of a viewport before News leaves the screen.
-		mobileFiltersVisible =
-			!newsBounds || newsBounds.height === 0 || newsBounds.bottom <= window.innerHeight * 0.1;
+		mobileFiltersVisible = !news || news.height === 0 || newsBottom <= viewportHeight * 0.1;
 		visibleSections = newsVisible && worksVisible ? 'both' : newsVisible ? 'news' : 'works';
 
 		// Switch when Works reaches the upper part of the viewport, or the page ends.
-		const atBottom =
-			window.scrollY > 0 &&
-			window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
-		homeSection =
-			!news || worksBounds.top <= window.innerHeight * 0.25 || atBottom ? 'works' : 'news';
+		const atBottom = scrollY > 0 && scrollY + viewportHeight >= pageHeight - 2;
+		homeSection = !news || worksTop <= viewportHeight * 0.25 || atBottom ? 'works' : 'news';
 	}
 
 	afterNavigate(() => {
 		resizeObserver?.disconnect();
+		sectionLayout = undefined;
 		if (navigationFrame !== undefined) cancelAnimationFrame(navigationFrame);
-		updateSection();
 		navigationFrame = requestAnimationFrame(() => {
 			updateSection();
 			// Let navigation and the grid consume the anchor before removing it.
 			clearSectionHash();
 		});
 		if (page.route.id !== '/') return;
-		resizeObserver = new ResizeObserver(updateSection);
+		resizeObserver = new ResizeObserver(measureSections);
+		resizeObserver.observe(document.documentElement);
 		for (const id of ['news', 'works']) {
 			const section = document.getElementById(id);
 			if (section) resizeObserver.observe(section);

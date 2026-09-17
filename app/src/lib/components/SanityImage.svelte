@@ -1,9 +1,16 @@
-<script lang="ts">
-	import { fade } from 'svelte/transition';
+<script lang="ts" module>
+	// Remember successful loads for this session, including lazy images remounted
+	// before the browser reports them as complete. This is not a cache inventory.
+	// Load history is bookkeeping, not reactive UI state.
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity
+	const loadedSources = new Set<string>();
+</script>
 
+<script lang="ts">
 	import { urlFor } from '$lib/sanity/client';
 	import type { SanityImageCrop, SanityImageHotspot } from '../../sanity.types';
-	import { onMount } from 'svelte';
+	import { untrack } from 'svelte';
+	import type { TransitionConfig } from 'svelte/transition';
 
 	/** Minimal image shape shared by works / information queries. */
 	type SanityImageWithMetadata = {
@@ -57,15 +64,35 @@
 		return builder.url();
 	}
 
-	function onload() {
+	let animateReveal = false;
+
+	function markLoaded(animate: boolean) {
+		if (loadedSrc === imageSrc) return;
+		animateReveal = animate;
+		loadedSources.add(imageSrc);
 		loadedSrc = imageSrc;
 	}
 
-	onMount(() => {
-		if (imageRef?.complete && imageRef.naturalWidth > 0) {
-			loadedSrc = imageSrc;
+	function onload() {
+		markLoaded(!loadedSources.has(imageSrc));
+	}
+
+	$effect(() => {
+		// Also covers hydration and src changes whose load event was already fired.
+		const src = imageSrc;
+		if (src && imageRef?.complete && imageRef.naturalWidth > 0) {
+			untrack(() => markLoaded(false));
 		}
 	});
+
+	const revealPlaceholder: (node: HTMLElement) => TransitionConfig = () => {
+		// A placeholder has known opacity, so no computed-style/layout read is needed.
+		// Only animate a fresh load, never removal during navigation or a cached reveal.
+		return {
+			duration: loadedSrc === imageSrc && animateReveal ? 500 : 0,
+			css: (t: number) => `opacity: ${t}`
+		};
+	};
 </script>
 
 <div
@@ -90,7 +117,7 @@
 		/>
 		{#if lqip && loadedSrc !== imageSrc}
 			<img
-				out:fade={{ duration: 500 }}
+				out:revealPlaceholder
 				src={lqip}
 				alt=""
 				aria-hidden="true"

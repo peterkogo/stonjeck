@@ -31,34 +31,24 @@
 
 	function activateGallery(restoreSlug?: string) {
 		clearScrollTarget();
-		if (!expanded && wrapper) {
-			const anchor = wrapper.querySelector<HTMLElement>('[data-index]');
-			const top = anchor?.getBoundingClientRect().top ?? 0;
-			const root = document.documentElement;
-			const snap = root.style.scrollSnapType;
-			const anchoring = root.style.overflowAnchor;
-			root.style.scrollSnapType = 'none';
-			root.style.overflowAnchor = 'none';
-			// Insert and compensate synchronously, before the browser can paint.
-			// The keyed section (including its already loaded image) stays mounted.
+		let index = restoreSlug
+			? works.findIndex((work) => work.slug?.current === restoreSlug)
+			: -1;
+
+		if (!expanded) {
+			// Keep the initial section mounted, then align it before the next paint.
 			flushSync(() => {
 				expanded = true;
 			});
-			if (anchor) {
-				window.scrollBy({
-					top: anchor.getBoundingClientRect().top - top,
-					behavior: 'instant'
-				});
-			}
-			root.style.scrollSnapType = snap;
-			root.style.overflowAnchor = anchoring;
+			if (index < 0) index = initialIndex;
 		}
+
 		scrollReady = true;
-		if (restoreSlug) {
-			const index = works.findIndex((work) => work.slug?.current === restoreSlug);
-			if (index >= 0) scrollToIndex(index, 'instant');
+		if (index >= 0) {
+			scrollToIndex(index, 'instant');
+			currentIndex = index;
+			updateUrl(index);
 		}
-		updateCurrentIndex();
 	}
 
 	afterNavigate(({ type }) => {
