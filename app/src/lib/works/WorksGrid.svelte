@@ -65,16 +65,27 @@
 
 		const target = document.getElementById(slug);
 		const section = document.getElementById('works');
-		// Let native scrolling resolve the responsive scroll margin. Keep this
-		// alignment as the lower limit when centering an artwork near the top.
-		section?.scrollIntoView({ block: 'start', behavior: 'instant' });
-		const sectionScrollY = window.scrollY;
-		if (target) {
-			target.scrollIntoView({ block: 'center', behavior: 'instant' });
-			if (section && window.scrollY < sectionScrollY) {
-				window.scrollTo({ top: sectionScrollY, behavior: 'instant' });
-			}
-		}
+		if (!target && !section) return;
+
+		// Read layout before scrolling: center the artwork, bounded by the Works
+		// section's responsive alignment and the document's scrollable range.
+		const scrollY = window.scrollY;
+		const viewportHeight = window.innerHeight;
+		const targetBounds = target?.getBoundingClientRect();
+		const sectionBounds = section?.getBoundingClientRect();
+		const sectionMargin = section
+			? parseFloat(getComputedStyle(section).scrollMarginTop) || 0
+			: 0;
+		const sectionTop = sectionBounds ? scrollY + sectionBounds.top - sectionMargin : 0;
+		const centeredTop = targetBounds
+			? scrollY + targetBounds.top + (targetBounds.height - viewportHeight) / 2
+			: sectionTop;
+		const maxScrollY = Math.max(0, document.documentElement.scrollHeight - viewportHeight);
+
+		window.scrollTo({
+			top: Math.min(maxScrollY, Math.max(0, sectionTop, centeredTop)),
+			behavior: 'instant'
+		});
 	}
 
 	onMount(() => {
@@ -149,6 +160,7 @@
 						<!-- eslint-disable svelte/no-navigation-without-resolve -->
 						<a
 							id={featured ? `news-${slug}` : slug}
+							class="block h-full w-full"
 							onpointerdown={() => {
 								transitionWorkId = work._id;
 							}}
