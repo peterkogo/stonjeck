@@ -18,6 +18,7 @@
 		browser ? parseFilterQuery(page.url.searchParams.get('filter')) : []
 	);
 	const available = $derived(availableTags(tagIndex, selected));
+	const groupOrder = ['gattung', 'medium', 'bildträger'];
 	const groups = $derived.by(() => {
 		const grouped = new SvelteMap<string, TagsQueryResult>();
 		for (const tag of tags) {
@@ -25,7 +26,11 @@
 			const group = tag.group?.trim() ?? '';
 			grouped.set(group, [...(grouped.get(group) ?? []), tag]);
 		}
-		return [...grouped.entries()];
+		const priority = (group: string) => {
+			const index = groupOrder.indexOf(group);
+			return index === -1 ? groupOrder.length : index;
+		};
+		return [...grouped.entries()].sort(([a], [b]) => priority(a) - priority(b));
 	});
 
 	async function setFilters(filters: string[]) {
@@ -55,7 +60,7 @@
 
 <div
 	class:mobile
-	class="flex w-full min-w-0 flex-col gap-3 pt-5 text-right text-[0.5625rem] leading-tight sm:text-[0.625rem]"
+	class="flex w-full min-w-0 flex-col gap-3 text-right text-[0.5625rem] leading-tight sm:text-[0.625rem]"
 	aria-label={getLocale() === 'de' ? 'Werke filtern' : 'Filter works'}
 >
 	{#if !mobile}
@@ -64,12 +69,12 @@
 			disabled={selected.length === 0}
 			class:invisible={selected.length === 0}
 			onclick={() => setFilters([])}
-			class="text-muted-foreground hover:text-foreground cursor-pointer py-1 text-right underline underline-offset-4"
+			class="text-muted-foreground hover:text-foreground cursor-pointer self-start py-1 text-left underline underline-offset-4"
 		>
 			{getLocale() === 'de' ? 'Filter zurücksetzen' : 'Clear filters'}
 		</button>
 	{/if}
-	<div class="tag-groups flex flex-col gap-3">
+	<div class="tag-groups flex flex-col gap-6">
 		{#each groups as [group, tags] (group)}
 			<div class="flex w-full min-w-0 flex-wrap justify-end gap-1">
 				{#each tags as tag (tag._id)}
@@ -96,7 +101,7 @@
 		font-size: 0.75rem;
 	}
 	.mobile .tag-groups {
-		gap: 1rem;
+		gap: 1.5rem;
 	}
 	.mobile .tag-groups > div {
 		justify-content: flex-end;

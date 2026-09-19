@@ -212,6 +212,7 @@ export type Tag = {
   name?: InternationalizedArrayString;
   slug?: Slug;
   group?: string;
+  hidden?: boolean;
 };
 
 export type Medium = {
@@ -329,7 +330,7 @@ export type AllSanitySchemaTypes = WorkReference | ExhibitionsReference | News |
 
 // Source: ../app/src/lib/data.remote.ts
 // Variable: tagsQuery
-// Query: *[_type == "tag"] | order(group asc, slug.current asc) {		_id,		name,		slug,		group	}
+// Query: *[_type == "tag" && hidden != true] | order(group asc, slug.current asc) {		_id,		name,		slug,		group	}
 export type TagsQueryResult = Array<{
   _id: string;
   name: InternationalizedArrayString | null;
@@ -469,7 +470,7 @@ export type InformationQueryResult = {
 // Query TypeMap
 declare global {
   interface SanityQueries {
-    "\n\t*[_type == \"tag\"] | order(group asc, slug.current asc) {\n\t\t_id,\n\t\tname,\n\t\tslug,\n\t\tgroup\n\t}\n": TagsQueryResult;
+    "\n\t*[_type == \"tag\" && hidden != true] | order(group asc, slug.current asc) {\n\t\t_id,\n\t\tname,\n\t\tslug,\n\t\tgroup\n\t}\n": TagsQueryResult;
     "\n\t*[_type == \"work\"] | order(date desc) {\n\t\t_id,\n\t\tslug,\n\t\ttitle,\n\t\timage {\n\t\t\thotspot,\n\t\t\tcrop,\n\t\t\tasset->{\n\t\t\t\t_id,\n\t\t\t\tmetadata {\n\t\t\t\t\tlqip,\n\t\t\t\t\tdimensions {\n\t\t\t\t\t\twidth,\n\t\t\t\t\t\theight,\n\t\t\t\t\t\taspectRatio\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\tdate,\n\t\tsize,\n\t\ttags[]-> {\n\t\t\t_id,\n\t\t\tslug,\n\t\t\tgroup\n\t\t},\n\t\tmedium-> {\n\t\t\tname\n\t\t}\n\t}\n": WorksQueryResult;
     "\n\t*[_type == \"news\"][0].works[]._ref\n": NewsWorkIdsQueryResult;
     "\n\t*[_type == \"news\"][0].events[]-> {\n\t\t_id,\n\t\ttitle,\n\t\tstartDate,\n\t\tendDate,\n\t\tvenue { name, city },\n\t\tposter {\n\t\t\talt,\n\t\t\thotspot,\n\t\t\tcrop,\n\t\t\tasset->{\n\t\t\t\t_id,\n\t\t\t\tmetadata { lqip, dimensions { width, height, aspectRatio } }\n\t\t\t}\n\t\t}\n\t}\n": NewsEventsQueryResult;

@@ -21,5 +21,6 @@ minimumReleaseAgeExclude:
   - '@sanity/validation@6.13.2'
   - '@sanity/vision@6.13.2'
   - sanity@6.13.2
+  - eslint@10.11.0
 onlyBuiltDependencies:
   - esbuild

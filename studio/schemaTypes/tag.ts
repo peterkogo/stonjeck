@@ -29,6 +29,12 @@ export default {
       title: 'Group',
       type: 'string',
     },
+    {
+      name: 'hidden',
+      title: 'Hide',
+      type: 'boolean',
+      initialValue: false,
+    },
   ],
   preview: {
     select: {

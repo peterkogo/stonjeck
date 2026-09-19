@@ -6,7 +6,7 @@ import { sanityClient } from '$lib/sanity/client';
 import { buildTagIndex } from '$lib/works/tag-index';
 
 const tagsQuery = defineQuery(`
-	*[_type == "tag"] | order(group asc, slug.current asc) {
+	*[_type == "tag" && hidden != true] | order(group asc, slug.current asc) {
 		_id,
 		name,
 		slug,
