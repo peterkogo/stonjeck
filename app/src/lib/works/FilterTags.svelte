@@ -97,7 +97,7 @@
 
 <style>
 	.desktop {
-		max-width: 90%;
+		max-width: 80%;
 		margin-left: auto;
 	}
 	.mobile {

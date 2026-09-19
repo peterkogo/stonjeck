@@ -85,7 +85,6 @@ export default {
           description: 'Important for accessibility and SEO',
         },
       ],
-      validation: (Rule: any) => Rule.required(),
     },
     {
       name: 'photos',
