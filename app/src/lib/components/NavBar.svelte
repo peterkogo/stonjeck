@@ -2,7 +2,7 @@
 	import { browser } from '$app/environment';
 	import { resolve } from '$app/paths';
 	import { afterNavigate, goto, replaceState } from '$app/navigation';
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import { prefersReducedMotion } from 'svelte/motion';
@@ -124,7 +124,7 @@
 		homeSection = !news || worksTop <= viewportHeight * 0.25 || atBottom ? 'works' : 'news';
 	}
 
-	afterNavigate(() => {
+	function observeSections() {
 		resizeObserver?.disconnect();
 		sectionLayout = undefined;
 		if (navigationFrame !== undefined) cancelAnimationFrame(navigationFrame);
@@ -140,6 +140,13 @@
 			const section = document.getElementById(id);
 			if (section) resizeObserver.observe(section);
 		}
+	}
+
+	afterNavigate(observeSections);
+	onMount(() => {
+		// Hydration recovery can miss afterNavigate. Start tracking on mount too,
+		// while leaving subsequent navigation responsible for replacing observers.
+		if (!resizeObserver) observeSections();
 	});
 
 	onDestroy(() => {
