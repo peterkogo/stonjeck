@@ -60,6 +60,7 @@
 
 <div
 	class:mobile
+	class:desktop={!mobile}
 	class="flex w-full min-w-0 flex-col gap-3 text-right text-[0.5625rem] leading-tight sm:text-[0.625rem]"
 	aria-label={getLocale() === 'de' ? 'Werke filtern' : 'Filter works'}
 >
@@ -69,7 +70,7 @@
 			disabled={selected.length === 0}
 			class:invisible={selected.length === 0}
 			onclick={() => setFilters([])}
-			class="text-muted-foreground hover:text-foreground cursor-pointer self-start py-1 text-left underline underline-offset-4"
+			class="text-muted-foreground hover:text-foreground cursor-pointer self-end py-1 text-right underline underline-offset-4"
 		>
 			{getLocale() === 'de' ? 'Filter zurücksetzen' : 'Clear filters'}
 		</button>
@@ -95,6 +96,10 @@
 </div>
 
 <style>
+	.desktop {
+		max-width: 90%;
+		margin-left: auto;
+	}
 	.mobile {
 		padding: 0.625rem 0.5rem 1rem;
 		gap: 0.5rem;

@@ -174,7 +174,7 @@
 	class="sidebar bg-background fixed inset-y-0 left-0 z-20 hidden flex-col overflow-y-auto py-5 pl-2 sm:py-8 sm:pl-4 md:flex"
 >
 	<a
-		class=" mt-1 inline-block text-right text-2xl leading-[1.3] font-medium tracking-[-0.035em] whitespace-nowrap focus-visible:outline focus-visible:outline-offset-[5px] focus-visible:outline-current"
+		class=" mt-1 inline-block text-right text-[1.6875rem] leading-[1.3] font-medium tracking-[-0.035em] whitespace-nowrap focus-visible:outline focus-visible:outline-offset-[5px] focus-visible:outline-current"
 		href={resolve(localizeHref(resolve('/')) as '/')}
 		onclick={(event) => navigateToSection(event, 'news')}>Karim Stonjeck</a
 	>
@@ -224,14 +224,16 @@
 		{#if (visibleSections === 'works' || hasFilters) && tags.length > 0}
 			<!-- Reveal on returning to the overview; only animate exits within this page. -->
 			<div
-				class="min-w-0 [contain:inline-size]"
+				class="desktop-filters min-w-0 [contain:inline-size]"
 				in:slide|global={{
 					duration: prefersReducedMotion.current ? 0 : 180,
 					easing: cubicOut
 				}}
 				out:slide={{ duration: prefersReducedMotion.current ? 0 : 180, easing: cubicOut }}
 			>
-				<FilterTags {tags} {tagIndex} />
+				<div class="row-start-2 min-w-0">
+					<FilterTags {tags} {tagIndex} />
+				</div>
 			</div>
 		{/if}
 	{/if}
@@ -249,6 +251,12 @@
 </aside>
 
 <style>
+	.desktop-filters {
+		flex: 1 0 auto;
+		display: grid;
+		grid-template-rows: minmax(1.5rem, 2fr) auto minmax(1.5rem, 3fr);
+	}
+
 	.sidebar {
 		/* Keep the content edge fixed, with room for the rule beyond it. */
 		width: calc(var(--site-sidebar-width) + 1rem);
