@@ -41,7 +41,7 @@ export default {
       name: 'endDate',
       title: 'End Date',
       type: 'datetime',
-      validation: (Rule: any) => Rule.required().min(Rule.valueOfField('startDate')),
+      validation: (Rule: any) => Rule.min(Rule.valueOfField('startDate')),
     },
     {
       name: 'venue',

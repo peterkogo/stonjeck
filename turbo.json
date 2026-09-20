@@ -5,7 +5,12 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["build/**", "dist/**", ".svelte-kit/**", ".netlify/**"]
+      "outputs": ["build/**", "dist/**", ".svelte-kit/**"],
+      "env": [
+        "PUBLIC_SANITY_PROJECT_ID",
+        "PUBLIC_SANITY_DATASET",
+        "PUBLIC_SANITY_API_VERSION"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]

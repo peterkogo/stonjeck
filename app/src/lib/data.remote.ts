@@ -19,7 +19,7 @@ export const getTags = prerender(async () => {
 });
 
 const worksQuery = defineQuery(`
-	*[_type == "work"] | order(date desc) {
+	*[_type == "work" && hidden != true] | order(date desc) {
 		_id,
 		slug,
 		title,
@@ -78,7 +78,7 @@ const informationQuery = defineQuery(`
 	*[_type == "information"][0] {
 		_id,
 		_type,
-		titleImage-> {
+		"titleImage": *[_type == "work" && _id == ^.titleImage._ref && hidden != true][0] {
 			image {
 				...,
 				asset->{

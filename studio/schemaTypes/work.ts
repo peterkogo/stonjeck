@@ -4,6 +4,12 @@ export default {
   type: 'document',
   fields: [
     {
+      name: 'hidden',
+      title: 'Hide',
+      type: 'boolean',
+      initialValue: false,
+    },
+    {
       name: 'image',
       title: 'Image',
       type: 'image',

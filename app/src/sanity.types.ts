@@ -172,6 +172,7 @@ export type Work = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
+  hidden?: boolean;
   image?: {
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -340,7 +341,7 @@ export type TagsQueryResult = Array<{
 
 // Source: ../app/src/lib/data.remote.ts
 // Variable: worksQuery
-// Query: *[_type == "work"] | order(date desc) {		_id,		slug,		title,		image {			hotspot,			crop,			asset->{				_id,				metadata {					lqip,					dimensions {						width,						height,						aspectRatio					}				}			}		},		date,		size,		tags[]-> {			_id,			slug,			group		},		medium-> {			name		}	}
+// Query: *[_type == "work" && hidden != true] | order(date desc) {		_id,		slug,		title,		image {			hotspot,			crop,			asset->{				_id,				metadata {					lqip,					dimensions {						width,						height,						aspectRatio					}				}			}		},		date,		size,		tags[]-> {			_id,			slug,			group		},		medium-> {			name		}	}
 export type WorksQueryResult = Array<{
   _id: string;
   slug: Slug | null;
@@ -409,7 +410,7 @@ export type NewsEventsQueryResult = Array<{
 
 // Source: ../app/src/lib/data.remote.ts
 // Variable: informationQuery
-// Query: *[_type == "information"][0] {		_id,		_type,		titleImage-> {			image {				...,				asset->{					...,					metadata{						lqip,						dimensions					}				}			}		},		biography,		impressum	}
+// Query: *[_type == "information"][0] {		_id,		_type,		"titleImage": *[_type == "work" && _id == ^.titleImage._ref && hidden != true][0] {			image {				...,				asset->{					...,					metadata{						lqip,						dimensions					}				}			}		},		biography,		impressum	}
 export type InformationQueryResult = {
   _id: string;
   _type: "information";
@@ -471,10 +472,10 @@ export type InformationQueryResult = {
 declare global {
   interface SanityQueries {
     "\n\t*[_type == \"tag\" && hidden != true] | order(group asc, slug.current asc) {\n\t\t_id,\n\t\tname,\n\t\tslug,\n\t\tgroup\n\t}\n": TagsQueryResult;
-    "\n\t*[_type == \"work\"] | order(date desc) {\n\t\t_id,\n\t\tslug,\n\t\ttitle,\n\t\timage {\n\t\t\thotspot,\n\t\t\tcrop,\n\t\t\tasset->{\n\t\t\t\t_id,\n\t\t\t\tmetadata {\n\t\t\t\t\tlqip,\n\t\t\t\t\tdimensions {\n\t\t\t\t\t\twidth,\n\t\t\t\t\t\theight,\n\t\t\t\t\t\taspectRatio\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\tdate,\n\t\tsize,\n\t\ttags[]-> {\n\t\t\t_id,\n\t\t\tslug,\n\t\t\tgroup\n\t\t},\n\t\tmedium-> {\n\t\t\tname\n\t\t}\n\t}\n": WorksQueryResult;
+    "\n\t*[_type == \"work\" && hidden != true] | order(date desc) {\n\t\t_id,\n\t\tslug,\n\t\ttitle,\n\t\timage {\n\t\t\thotspot,\n\t\t\tcrop,\n\t\t\tasset->{\n\t\t\t\t_id,\n\t\t\t\tmetadata {\n\t\t\t\t\tlqip,\n\t\t\t\t\tdimensions {\n\t\t\t\t\t\twidth,\n\t\t\t\t\t\theight,\n\t\t\t\t\t\taspectRatio\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\tdate,\n\t\tsize,\n\t\ttags[]-> {\n\t\t\t_id,\n\t\t\tslug,\n\t\t\tgroup\n\t\t},\n\t\tmedium-> {\n\t\t\tname\n\t\t}\n\t}\n": WorksQueryResult;
     "\n\t*[_type == \"news\"][0].works[]._ref\n": NewsWorkIdsQueryResult;
     "\n\t*[_type == \"news\"][0].events[]-> {\n\t\t_id,\n\t\ttitle,\n\t\tstartDate,\n\t\tendDate,\n\t\tvenue { name, city },\n\t\tposter {\n\t\t\talt,\n\t\t\thotspot,\n\t\t\tcrop,\n\t\t\tasset->{\n\t\t\t\t_id,\n\t\t\t\tmetadata { lqip, dimensions { width, height, aspectRatio } }\n\t\t\t}\n\t\t}\n\t}\n": NewsEventsQueryResult;
-    "\n\t*[_type == \"information\"][0] {\n\t\t_id,\n\t\t_type,\n\t\ttitleImage-> {\n\t\t\timage {\n\t\t\t\t...,\n\t\t\t\tasset->{\n\t\t\t\t\t...,\n\t\t\t\t\tmetadata{\n\t\t\t\t\t\tlqip,\n\t\t\t\t\t\tdimensions\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\tbiography,\n\t\timpressum\n\t}\n": InformationQueryResult;
+    "\n\t*[_type == \"information\"][0] {\n\t\t_id,\n\t\t_type,\n\t\t\"titleImage\": *[_type == \"work\" && _id == ^.titleImage._ref && hidden != true][0] {\n\t\t\timage {\n\t\t\t\t...,\n\t\t\t\tasset->{\n\t\t\t\t\t...,\n\t\t\t\t\tmetadata{\n\t\t\t\t\t\tlqip,\n\t\t\t\t\t\tdimensions\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\tbiography,\n\t\timpressum\n\t}\n": InformationQueryResult;
   }
 }
 // Lets @sanity/client releases that predate the global registry read it too
